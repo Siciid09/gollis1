@@ -58,7 +58,7 @@ export default function PublicLandingPage() {
             <div className="h-8 w-8 bg-indigo-600 rounded-lg flex items-center justify-center text-white shadow-md shadow-indigo-600/20">
               <Sparkles size={16} />
             </div>
-            TailorOS
+            TailorMS
           </div>
           <div className="hidden md:flex items-center gap-8 text-sm font-medium text-neutral-400">
             <Link href="#features" className="hover:text-white transition-colors">Features</Link>
