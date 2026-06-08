@@ -10,6 +10,9 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { auth, db } from "@/lib/firebase";
+import { onAuthStateChanged } from "firebase/auth";
+import { doc, getDoc } from "firebase/firestore";
 
 // --- TypeScript Interfaces ---
 interface DashboardStats {
@@ -58,27 +61,35 @@ export default function DashboardPage() {
   const [employeeStats, setEmployeeStats] = useState<EmployeeStat[]>([]); // NEW
   const [isLoading, setIsLoading] = useState(true);
 
-  // --- RBAC (Role-Based Access Control) State ---
+  // ---  State ---
   const [isAuthorized, setIsAuthorized] = useState<boolean | null>(null);
 
   useEffect(() => {
-    const checkSecurityClearance = () => {
-      const userRole = localStorage.getItem("userRole"); 
-      
-      // 1. If NO role exists (Not Logged In) -> Bounce to auth
-      if (!userRole) {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (!user) {
         router.push("/auth");
         return;
       }
-      
-      // 2. If logged in, check permissions
-      if (userRole === "admin" || userRole === "manager") {
-        setIsAuthorized(true);
-      } else {
-        setIsAuthorized(false); // Render the red Block Screen
+
+      try {
+        const userDoc = await getDoc(doc(db, "users", user.uid));
+        if (userDoc.exists()) {
+          const role = userDoc.data().role?.toLowerCase();
+          if (role === "admin" || role === "manager") {
+            setIsAuthorized(true);
+          } else {
+            setIsAuthorized(false);
+          }
+        } else {
+          setIsAuthorized(false);
+        }
+      } catch (error) {
+        console.error("Failed to verify security clearance:", error);
+        setIsAuthorized(false);
       }
-    };
-    checkSecurityClearance();
+    });
+
+    return () => unsubscribe();
   }, [router]);
 
   // --- Dynamic Data Fetching ---

@@ -13,6 +13,9 @@ import {
 } from "recharts";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { auth, db } from "@/lib/firebase";
+import { onAuthStateChanged } from "firebase/auth";
+import { doc, getDoc } from "firebase/firestore";
 
 export default function ReportsPage() {
   const router = useRouter();
@@ -30,23 +33,31 @@ export default function ReportsPage() {
 
   // 1. Check Authorization First
   useEffect(() => {
-    const checkSecurityClearance = () => {
-      const userRole = localStorage.getItem("userRole"); 
-      
-      // Bounce to auth if completely logged out
-      if (!userRole) {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (!user) {
         router.push("/auth");
         return;
       }
 
-      // Show Red Block Screen if logged in but lacks clearance
-      if (userRole === "admin" || userRole === "manager") {
-        setIsAuthorized(true);
-      } else {
+      try {
+        const userDoc = await getDoc(doc(db, "users", user.uid));
+        if (userDoc.exists()) {
+          const role = userDoc.data().role?.toLowerCase();
+          if (role === "admin" || role === "manager") {
+            setIsAuthorized(true);
+          } else {
+            setIsAuthorized(false);
+          }
+        } else {
+          setIsAuthorized(false);
+        }
+      } catch (error) {
+        console.error("Failed to verify security clearance:", error);
         setIsAuthorized(false);
       }
-    };
-    checkSecurityClearance();
+    });
+
+    return () => unsubscribe();
   }, [router]);
 
   // 2. Fetch Data ONLY if Authorized
