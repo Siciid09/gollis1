@@ -1,10 +1,9 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Mail, Lock, User, Loader2, ArrowRight, ShieldCheck, AlertCircle, Briefcase } from "lucide-react";
 import { useRouter } from "next/navigation";
-
 // --- Firebase Imports ---
 import { auth, db, googleProvider } from "@/lib/firebase"; 
 import { 
@@ -12,7 +11,8 @@ import {
   createUserWithEmailAndPassword, 
   signInWithPopup,
   updateProfile,
-  sendPasswordResetEmail
+  sendPasswordResetEmail,
+  onAuthStateChanged
 } from "firebase/auth";
 import { doc, setDoc, getDoc, serverTimestamp } from "firebase/firestore";
 
@@ -34,6 +34,17 @@ export default function AuthPage() {
     password: "",
     role: "Sewer", // Default role for signup
   });
+
+  // --- Session Listener (Redirects if already logged in) ---
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        router.push("/dash");
+      }
+    });
+    
+    return () => unsubscribe();
+  }, [router]);
 
   // --- Core Authentication & system Logic ---
   const handleForgotPassword = async () => {
