@@ -102,7 +102,7 @@ export default function CustomerReportPage() {
         {/* Gradient KPI Cards (Blue/Indigo Theme) */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {[
-            { title: "Total Registered Database", value: masterData?.customers?.total || 0, icon: <Users size={20} className="text-blue-100" />, bg: "bg-gradient-to-br from-blue-600 to-cyan-600 border-blue-500/30" },
+            { title: "Total Registered", value: masterData?.customers?.total || 0, icon: <Users size={20} className="text-blue-100" />, bg: "bg-gradient-to-br from-blue-600 to-cyan-600 border-blue-500/30" },
             { title: "Active Clients (With Orders)", value: activeCustomers.toString(), icon: <UserCheck size={20} className="text-indigo-100" />, bg: "bg-gradient-to-br from-indigo-600 to-purple-600 border-indigo-500/30" },
             { title: "New Acquisitions (30 Days)", value: newCustomers.toString(), icon: <UserPlus size={20} className="text-emerald-100" />, bg: "bg-gradient-to-br from-emerald-500 to-teal-500 border-emerald-500/30" },
           ].map((card, i) => (

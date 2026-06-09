@@ -1,15 +1,22 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { db } from './../../lib/firebase-admin';
+import { db } from '@/lib/firebase-admin'; // Adjust path if yours is '../../lib/firebase-admin'
 import { FieldValue } from 'firebase-admin/firestore';
 
 export async function GET(req: NextRequest) {
   try {
     const snapshot = await db.collection('payments').orderBy('createdAt', 'desc').get();
     
-    const payments = snapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data()
-    }));
+    const payments = snapshot.docs.map(doc => {
+      const data = doc.data();
+      return {
+        id: doc.id,
+        ...data,
+        // FIX 1: Safely convert Firebase Timestamp to a string so React doesn't crash on .split('T')
+        invoiceDate: data.createdAt && typeof data.createdAt.toDate === 'function' 
+          ? data.createdAt.toDate().toISOString() 
+          : new Date().toISOString()
+      };
+    });
 
     return NextResponse.json({ success: true, data: payments });
   } catch (error) {
@@ -43,7 +50,7 @@ export async function POST(request: NextRequest) {
       paymentMethod: body.paymentMethod || "Cash",
       status: status,
       notes: body.notes || "",
-      createdAt: FieldValue.serverTimestamp(),
+      createdAt: FieldValue.serverTimestamp(), // Saves exact server time in Firebase
     };
 
     // BATCH: Ensure the payment is saved AND the order balance is updated simultaneously
@@ -60,9 +67,17 @@ export async function POST(request: NextRequest) {
 
     await batch.commit();
 
+    // FIX 2: Strip out the Firebase 'FieldValue' object before sending to the client.
+    // Next.js crashes if it tries to send raw database functions back to the frontend.
+    const { createdAt, ...safePaymentData } = paymentData;
+
     return NextResponse.json({ 
       success: true, 
-      data: { id: paymentRef.id, ...paymentData, invoiceDate: new Date().toISOString() } 
+      data: { 
+        id: paymentRef.id, 
+        ...safePaymentData, 
+        invoiceDate: new Date().toISOString() // Provide a clean string for the table instantly
+      } 
     });
   } catch (error) {
     console.error("Failed to process transaction:", error);
