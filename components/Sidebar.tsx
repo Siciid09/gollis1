@@ -16,7 +16,6 @@ import {
   ChevronRight,
   ChevronDown,
   LogOut,
-  BellRing,
   Loader2,
   LogIn,
   Layers,
@@ -49,7 +48,7 @@ function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-// --- Re-architected Menu with Dynamic Modern Themes ---
+// --- Re-architected Menu with PERMANENT Colorful Themes ---
 type MenuItem = {
   name: string;
   icon: any;
@@ -57,8 +56,10 @@ type MenuItem = {
   submenu?: { name: string; icon: any; href: string }[];
   theme: {
     text: string;
+    bgDefault: string;
     bgActive: string;
     bgHover: string;
+    borderDefault: string;
     borderActive: string;
     borderHover: string;
     glow: string;
@@ -72,13 +73,15 @@ const menuItems: MenuItem[] = [
     icon: LayoutDashboard, 
     href: "/dash",
     theme: {
-      text: "text-indigo-400",
-      bgActive: "bg-gradient-to-r from-indigo-500/20 to-purple-500/10",
-      bgHover: "hover:bg-gradient-to-r hover:from-indigo-500/10 hover:to-purple-500/5",
-      borderActive: "border-indigo-500/30",
-      borderHover: "hover:border-indigo-500/20",
-      glow: "drop-shadow-[0_0_12px_rgba(99,102,241,0.6)]",
-      indicator: "bg-indigo-500"
+      text: "text-indigo-300",
+      bgDefault: "bg-gradient-to-r from-indigo-500/20 to-purple-500/10",
+      bgActive: "bg-gradient-to-r from-indigo-500/50 to-purple-500/40",
+      bgHover: "hover:bg-gradient-to-r hover:from-indigo-400/40 hover:to-purple-400/30",
+      borderDefault: "border-indigo-500/20",
+      borderActive: "border-indigo-400/50",
+      borderHover: "hover:border-indigo-400/40",
+      glow: "drop-shadow-[0_0_10px_rgba(99,102,241,0.8)]",
+      indicator: "bg-indigo-400"
     }
   },
   { 
@@ -89,13 +92,15 @@ const menuItems: MenuItem[] = [
       { name: "Measurements", icon: Ruler, href: "/customers/measurements" },
     ],
     theme: {
-      text: "text-emerald-400",
-      bgActive: "bg-gradient-to-r from-emerald-500/20 to-teal-500/10",
-      bgHover: "hover:bg-gradient-to-r hover:from-emerald-500/10 hover:to-teal-500/5",
-      borderActive: "border-emerald-500/30",
-      borderHover: "hover:border-emerald-500/20",
-      glow: "drop-shadow-[0_0_12px_rgba(16,185,129,0.6)]",
-      indicator: "bg-emerald-500"
+      text: "text-emerald-300",
+      bgDefault: "bg-gradient-to-r from-emerald-500/20 to-teal-500/10",
+      bgActive: "bg-gradient-to-r from-emerald-500/50 to-teal-500/40",
+      bgHover: "hover:bg-gradient-to-r hover:from-emerald-400/40 hover:to-teal-400/30",
+      borderDefault: "border-emerald-500/20",
+      borderActive: "border-emerald-400/50",
+      borderHover: "hover:border-emerald-400/40",
+      glow: "drop-shadow-[0_0_10px_rgba(16,185,129,0.8)]",
+      indicator: "bg-emerald-400"
     }
   },
   { 
@@ -107,13 +112,15 @@ const menuItems: MenuItem[] = [
       { name: "Delivered Orders", icon: PackageCheck, href: "/orders/delivered" },
     ],
     theme: {
-      text: "text-rose-400",
-      bgActive: "bg-gradient-to-r from-rose-500/20 to-orange-500/10",
-      bgHover: "hover:bg-gradient-to-r hover:from-rose-500/10 hover:to-orange-500/5",
-      borderActive: "border-rose-500/30",
-      borderHover: "hover:border-rose-500/20",
-      glow: "drop-shadow-[0_0_12px_rgba(244,63,94,0.6)]",
-      indicator: "bg-rose-500"
+      text: "text-rose-300",
+      bgDefault: "bg-gradient-to-r from-rose-500/20 to-orange-500/10",
+      bgActive: "bg-gradient-to-r from-rose-500/50 to-orange-500/40",
+      bgHover: "hover:bg-gradient-to-r hover:from-rose-400/40 hover:to-orange-400/30",
+      borderDefault: "border-rose-500/20",
+      borderActive: "border-rose-400/50",
+      borderHover: "hover:border-rose-400/40",
+      glow: "drop-shadow-[0_0_10px_rgba(244,63,94,0.8)]",
+      indicator: "bg-rose-400"
     }
   },
   { 
@@ -125,13 +132,15 @@ const menuItems: MenuItem[] = [
       { name: "Purchases", icon: Receipt, href: "/inventory/purchases" },
     ],
     theme: {
-      text: "text-amber-400",
-      bgActive: "bg-gradient-to-r from-amber-500/20 to-yellow-500/10",
-      bgHover: "hover:bg-gradient-to-r hover:from-amber-500/10 hover:to-yellow-500/5",
-      borderActive: "border-amber-500/30",
-      borderHover: "hover:border-amber-500/20",
-      glow: "drop-shadow-[0_0_12px_rgba(245,158,11,0.6)]",
-      indicator: "bg-amber-500"
+      text: "text-amber-300",
+      bgDefault: "bg-gradient-to-r from-amber-500/20 to-yellow-500/10",
+      bgActive: "bg-gradient-to-r from-amber-500/50 to-yellow-500/40",
+      bgHover: "hover:bg-gradient-to-r hover:from-amber-400/40 hover:to-yellow-400/30",
+      borderDefault: "border-amber-500/20",
+      borderActive: "border-amber-400/50",
+      borderHover: "hover:border-amber-400/40",
+      glow: "drop-shadow-[0_0_10px_rgba(245,158,11,0.8)]",
+      indicator: "bg-amber-400"
     }
   },
   { 
@@ -145,13 +154,15 @@ const menuItems: MenuItem[] = [
       { name: "Profit Reports", icon: PieChart, href: "/finance/profit" },
     ],
     theme: {
-      text: "text-cyan-400",
-      bgActive: "bg-gradient-to-r from-cyan-500/20 to-blue-500/10",
-      bgHover: "hover:bg-gradient-to-r hover:from-cyan-500/10 hover:to-blue-500/5",
-      borderActive: "border-cyan-500/30",
-      borderHover: "hover:border-cyan-500/20",
-      glow: "drop-shadow-[0_0_12px_rgba(6,182,212,0.6)]",
-      indicator: "bg-cyan-500"
+      text: "text-cyan-300",
+      bgDefault: "bg-gradient-to-r from-cyan-500/20 to-blue-500/10",
+      bgActive: "bg-gradient-to-r from-cyan-500/50 to-blue-500/40",
+      bgHover: "hover:bg-gradient-to-r hover:from-cyan-400/40 hover:to-blue-400/30",
+      borderDefault: "border-cyan-500/20",
+      borderActive: "border-cyan-400/50",
+      borderHover: "hover:border-cyan-400/40",
+      glow: "drop-shadow-[0_0_10px_rgba(6,182,212,0.8)]",
+      indicator: "bg-cyan-400"
     }
   },
   { 
@@ -164,13 +175,15 @@ const menuItems: MenuItem[] = [
       { name: "Financial Reports", icon: Briefcase, href: "/reports" },
     ],
     theme: {
-      text: "text-fuchsia-400",
-      bgActive: "bg-gradient-to-r from-fuchsia-500/20 to-pink-500/10",
-      bgHover: "hover:bg-gradient-to-r hover:from-fuchsia-500/10 hover:to-pink-500/5",
-      borderActive: "border-fuchsia-500/30",
-      borderHover: "hover:border-fuchsia-500/20",
-      glow: "drop-shadow-[0_0_12px_rgba(217,70,239,0.6)]",
-      indicator: "bg-fuchsia-500"
+      text: "text-fuchsia-300",
+      bgDefault: "bg-gradient-to-r from-fuchsia-500/20 to-pink-500/10",
+      bgActive: "bg-gradient-to-r from-fuchsia-500/50 to-pink-500/40",
+      bgHover: "hover:bg-gradient-to-r hover:from-fuchsia-400/40 hover:to-pink-400/30",
+      borderDefault: "border-fuchsia-500/20",
+      borderActive: "border-fuchsia-400/50",
+      borderHover: "hover:border-fuchsia-400/40",
+      glow: "drop-shadow-[0_0_10px_rgba(217,70,239,0.8)]",
+      indicator: "bg-fuchsia-400"
     }
   },
 ];
@@ -263,7 +276,7 @@ export default function Sidebar() {
 
       <aside
         className={cn(
-          "fixed inset-y-0 left-0 flex flex-col h-screen bg-neutral-950/80 backdrop-blur-2xl border-r border-white/5 transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] z-50 shadow-[10px_0_40px_rgba(0,0,0,0.5)]",
+          "fixed inset-y-0 left-0 flex flex-col h-screen bg-neutral-950/90 backdrop-blur-3xl border-r border-white/5 transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] z-50 shadow-[10px_0_40px_rgba(0,0,0,0.5)]",
           isMobileOpen ? "translate-x-0 w-72" : "-translate-x-full",
           "md:translate-x-0 md:relative",
           isCollapsed ? "md:w-24" : "md:w-72"
@@ -288,9 +301,9 @@ export default function Sidebar() {
         {/* Brand Header */}
         <div className="flex items-center justify-center h-28 border-b border-white/5">
           <div className="flex items-center gap-4 px-6 w-full">
-            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 text-white font-black text-xl shadow-[0_0_20px_rgba(168,85,247,0.4)] relative overflow-hidden group">
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-amber-500 via-yellow-600 to-amber-700 text-white font-black text-xl shadow-[0_0_20px_rgba(217,119,6,0.4)] relative overflow-hidden group">
               <div className="absolute inset-0 bg-white/20 blur-md group-hover:scale-150 transition-transform duration-500" />
-              <span className="relative z-10">TM</span>
+              <span className="relative z-10"><Scissors size={20} /></span>
             </div>
             {(!isCollapsed || isMobileOpen) && (
               <motion.div 
@@ -298,8 +311,8 @@ export default function Sidebar() {
                 animate={{ opacity: 1, x: 0 }} 
                 className="flex flex-col truncate"
               >
-                <span className="text-xl font-black text-white tracking-tight">Yoonis Tailor</span>
-                <span className="text-[10px] text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-400 font-mono font-bold uppercase tracking-widest">System Matrix</span>
+                <span className="text-xl font-black text-white tracking-tight uppercase">Yoonis Tailor</span>
+                <span className="text-[10px] text-amber-500 font-mono font-bold uppercase tracking-widest">System Matrix</span>
               </motion.div>
             )}
           </div>
@@ -307,7 +320,7 @@ export default function Sidebar() {
 
         {/* Navigation Links with Submenu Animations */}
         <nav className="flex-1 overflow-y-auto overflow-x-hidden py-8 no-scrollbar">
-          <ul className="flex flex-col gap-2 px-4">
+          <ul className="flex flex-col gap-3 px-4">
             {menuItems.map((item) => {
               const isSubmenuOpen = openSubmenus[item.name];
               const hasSubmenu = !!item.submenu;
@@ -320,10 +333,12 @@ export default function Sidebar() {
                   <button
                     onClick={() => hasSubmenu ? toggleSubmenu(item.name) : router.push(item.href!)}
                     className={cn(
-                      "w-full flex items-center justify-between px-4 py-3 rounded-2xl transition-all duration-300 ease-out group relative border overflow-hidden",
+                      "w-full flex items-center justify-between px-4 py-3.5 rounded-2xl transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] group relative border overflow-visible",
+                      // ACTIVE STATE
                       isActive 
-                        ? cn(item.theme.bgActive, item.theme.borderActive, "shadow-lg") 
-                        : cn("border-transparent text-neutral-400", item.theme.bgHover, item.theme.borderHover, "hover:text-white hover:translate-x-1 hover:scale-[1.02] hover:shadow-xl")
+                        ? cn(item.theme.bgActive, item.theme.borderActive, "shadow-xl translate-x-2") 
+                      // DEFAULT & HOVER STATE
+                        : cn(item.theme.bgDefault, item.theme.borderDefault, "text-neutral-300", item.theme.bgHover, item.theme.borderHover, "hover:text-white hover:translate-x-3 hover:scale-[1.03] hover:shadow-2xl")
                     )}
                     title={isCollapsed && !isMobileOpen ? item.name : undefined}
                   >
@@ -331,25 +346,25 @@ export default function Sidebar() {
                       {isActive && !hasSubmenu && (
                         <motion.div 
                           layoutId="activeIndicator"
-                          className={cn("absolute -left-4 top-1/2 -translate-y-1/2 w-1.5 h-1/2 rounded-r-full shadow-[0_0_10px_currentColor]", item.theme.indicator)} 
+                          className={cn("absolute -left-5 top-1/2 -translate-y-1/2 w-1.5 h-1/2 rounded-r-full shadow-[0_0_10px_currentColor]", item.theme.indicator)} 
                         />
                       )}
                       
                       <div className="relative">
                         <item.icon 
-                          size={20} 
+                          size={22} 
                           className={cn(
-                            "shrink-0 transition-all duration-500",
-                            isActive ? item.theme.text : `group-hover:${item.theme.text}`,
-                            (isActive || "group-hover:block") && item.theme.glow,
-                            "group-hover:scale-110 group-hover:-rotate-3"
+                            "shrink-0 transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)]",
+                            isActive ? "text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.8)]" : cn(item.theme.text, "group-hover:text-white"),
+                            item.theme.glow,
+                            "group-hover:scale-125 group-hover:-rotate-6" // POP ANIMATION
                           )} 
                         />
                       </div>
                       
                       {(!isCollapsed || isMobileOpen) && (
                         <span className={cn(
-                          "truncate text-sm font-bold tracking-wide transition-colors duration-300",
+                          "truncate text-sm font-black tracking-wider transition-colors duration-300",
                           isActive ? "text-white" : "group-hover:text-white"
                         )}>
                           {item.name}
@@ -358,11 +373,12 @@ export default function Sidebar() {
                     </div>
                     
                     {(!isCollapsed || isMobileOpen) && hasSubmenu && (
-                      <ChevronDown size={16} className={cn("transition-transform duration-300 text-neutral-500 group-hover:text-white relative z-10", isSubmenuOpen && "rotate-180")} />
+                      <ChevronDown size={16} className={cn("transition-transform duration-300 relative z-10", isActive ? "text-white" : "text-neutral-500 group-hover:text-white", isSubmenuOpen && "rotate-180")} />
                     )}
 
+                    {/* Tooltip for collapsed state */}
                     {isCollapsed && !isMobileOpen && (
-                      <div className="absolute left-full ml-4 hidden rounded-xl bg-neutral-900/90 backdrop-blur-md border border-white/10 px-4 py-2 text-xs font-bold text-white opacity-0 group-hover:block group-hover:opacity-100 z-50 shadow-2xl transition-all translate-y-1 group-hover:translate-y-0">
+                      <div className="absolute left-full ml-4 hidden rounded-xl bg-neutral-900/90 backdrop-blur-md border border-white/10 px-4 py-2 text-xs font-bold text-white opacity-0 group-hover:block group-hover:opacity-100 z-50 shadow-2xl transition-all translate-y-1 group-hover:translate-y-0 whitespace-nowrap">
                         {item.name}
                       </div>
                     )}
@@ -375,7 +391,7 @@ export default function Sidebar() {
                         animate={{ height: "auto", opacity: 1, scale: 1 }}
                         exit={{ height: 0, opacity: 0, scale: 0.95 }}
                         transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-                        className="overflow-hidden ml-5 pl-5 border-l-2 border-white/5 mt-2 flex flex-col gap-1.5 origin-top"
+                        className="overflow-hidden ml-5 pl-5 border-l-2 border-white/10 mt-2 flex flex-col gap-2 origin-top"
                       >
                         {item.submenu!.map((subItem) => {
                           const isSubActive = pathname === subItem.href;
@@ -384,17 +400,18 @@ export default function Sidebar() {
                               <Link
                                 href={subItem.href}
                                 className={cn(
-                                  "flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all duration-300 text-sm font-medium group/sub",
+                                  "flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 text-sm font-bold group/sub border",
                                   isSubActive 
-                                    ? cn(item.theme.text, "bg-white/5 shadow-inner border border-white/5") 
-                                    : "text-neutral-500 hover:text-white hover:bg-white/5 hover:translate-x-1.5 border border-transparent"
+                                    ? cn(item.theme.bgActive, item.theme.borderActive, "text-white shadow-inner translate-x-1") 
+                                    : cn(item.theme.bgHover, item.theme.borderHover, "text-neutral-400 border-transparent hover:text-white hover:translate-x-2 hover:scale-[1.02]")
                                 )}
                               >
                                 <subItem.icon 
                                   size={16} 
                                   className={cn(
-                                    "transition-transform duration-300 group-hover/sub:scale-110",
-                                    isSubActive && item.theme.glow
+                                    "transition-transform duration-300 group-hover/sub:scale-125 group-hover/sub:-rotate-6",
+                                    isSubActive ? "text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.6)]" : item.theme.text,
+                                    item.theme.glow
                                   )} 
                                 />
                                 <span className="truncate">{subItem.name}</span>
@@ -415,10 +432,10 @@ export default function Sidebar() {
         <div className="border-t border-white/5 p-5 flex flex-col gap-3 bg-gradient-to-b from-transparent to-black/40">
           <Link
             href="/settings"
-            className="flex items-center gap-3 px-4 py-3 rounded-2xl text-neutral-400 hover:bg-white/5 hover:text-white hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 group border border-transparent hover:border-white/10"
+            className="flex items-center gap-3 px-4 py-3.5 rounded-2xl text-neutral-400 hover:bg-white/5 hover:text-white hover:shadow-lg hover:-translate-y-1 hover:scale-[1.02] transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] group border border-transparent hover:border-white/10"
           >
-            <Settings size={20} className="shrink-0 group-hover:rotate-90 transition-transform duration-700 text-neutral-500 group-hover:text-white" />
-            {(!isCollapsed || isMobileOpen) && <span className="text-sm font-bold tracking-wide">System Settings</span>}
+            <Settings size={22} className="shrink-0 group-hover:rotate-90 transition-transform duration-700 text-neutral-500 group-hover:text-white" />
+            {(!isCollapsed || isMobileOpen) && <span className="text-sm font-black tracking-wide">System Settings</span>}
           </Link>
           
           <div className="mt-2 flex items-center justify-between rounded-2xl bg-neutral-900/60 backdrop-blur-md p-3 border border-white/5 hover:border-white/10 hover:shadow-xl transition-all duration-300 group">
@@ -429,7 +446,7 @@ export default function Sidebar() {
             ) : user ? (
               <>
                 <div className="flex items-center gap-3 truncate">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-tr from-neutral-800 to-neutral-700 border border-white/10 text-white font-black text-sm shadow-md group-hover:scale-105 transition-transform duration-300">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-tr from-neutral-800 to-neutral-700 border border-white/10 text-white font-black text-sm shadow-md group-hover:scale-110 transition-transform duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)]">
                     {getInitials()}
                   </div>
                   {(!isCollapsed || isMobileOpen) && (
@@ -437,7 +454,7 @@ export default function Sidebar() {
                       <span className="text-sm font-bold text-white truncate">
                         {user.displayName || "Authorized User"}
                       </span>
-                      <span className="text-[10px] text-emerald-400 font-mono truncate uppercase tracking-widest mt-0.5 font-bold">
+                      <span className="text-[10px] text-amber-500 font-mono truncate uppercase tracking-widest mt-0.5 font-bold">
                         {userRole || "Staff"}
                       </span>
                     </div>
@@ -446,7 +463,7 @@ export default function Sidebar() {
                 {(!isCollapsed || isMobileOpen) && (
                   <button 
                     onClick={handleLogout}
-                    className="text-neutral-500 hover:text-rose-400 transition-all duration-300 p-2 rounded-xl hover:bg-rose-500/10 hover:rotate-12 cursor-pointer hover:shadow-lg"
+                    className="text-neutral-500 hover:text-rose-400 transition-all duration-300 p-2 rounded-xl hover:bg-rose-500/10 hover:rotate-12 hover:scale-110 cursor-pointer hover:shadow-lg"
                     title="Secure Logout"
                   >
                     <LogOut size={18} />
@@ -457,7 +474,7 @@ export default function Sidebar() {
               <button 
                 onClick={() => router.push("/auth")}
                 className={cn(
-                  "w-full flex items-center justify-center gap-2 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white rounded-xl transition-all duration-300 py-2.5 text-sm font-bold active:scale-95 shadow-lg shadow-indigo-500/20 hover:shadow-indigo-500/40",
+                  "w-full flex items-center justify-center gap-2 bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white rounded-xl transition-all duration-300 py-3 text-sm font-bold active:scale-95 shadow-lg shadow-amber-600/20 hover:shadow-amber-500/40 hover:-translate-y-1 hover:scale-[1.02]",
                   (isCollapsed && !isMobileOpen) ? "px-0" : "px-4"
                 )}
               >
