@@ -176,15 +176,11 @@ export default function UsersPage() {
   }
 
   // ============================================================================
-  // MAIN ADMIN RENDER
+  // MAIN ADMIN RENDER (Optimized for Embedding)
   // ============================================================================
   return (
-    <div className="min-h-screen bg-[#050505] text-neutral-200 p-6 md:p-10 relative overflow-hidden">
-      {/* Background Ambience */}
-      <div className="fixed top-[-10%] left-[20%] w-[500px] h-[500px] bg-indigo-600/10 rounded-full blur-[130px] pointer-events-none" />
-      <div className="fixed bottom-[-10%] right-[-5%] w-[400px] h-[400px] bg-emerald-600/5 rounded-full blur-[100px] pointer-events-none" />
-
-      <div className="max-w-6xl mx-auto relative z-10 space-y-6 animate-in fade-in duration-700">
+    <div className="text-neutral-200 relative overflow-hidden w-full">
+      <div className="w-full relative z-10 space-y-6 animate-in fade-in duration-700">
         
         {/* Header */}
         <header className="flex flex-col md:flex-row md:items-end justify-between gap-4">
