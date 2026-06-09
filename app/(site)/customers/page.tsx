@@ -176,23 +176,24 @@ export default function CustomersPage() {
           </button>
         </header>
 
-        {/* --- KPI Stats Matrix --- */}
+        {/* --- KPI Stats Matrix (Gradient Theme) --- */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {[
-            { title: "Total Database", value: customers.length.toString(), icon: Users, trend: "Synced Live", color: "text-indigo-400", bg: "bg-indigo-500/10 border-indigo-500/20" },
-            { title: "Active Clients", value: activeCount.toString(), icon: UserCheck, trend: "With Orders", color: "text-emerald-400", bg: "bg-emerald-500/10 border-emerald-500/20" },
-            { title: "New Acquisitions", value: newCount.toString(), icon: TrendingUp, trend: "Recent Entries", color: "text-amber-400", bg: "bg-amber-500/10 border-amber-500/20" },
-            { title: "Dormant Profiles", value: (customers.length - activeCount - newCount).toString(), icon: Clock, trend: "Needs Follow-up", color: "text-rose-400", bg: "bg-rose-500/10 border-rose-500/20" },
+            { title: "Total Database", value: customers.length.toString(), icon: <Users size={20} className="text-indigo-100" />, bg: "bg-gradient-to-br from-indigo-600 to-purple-500 border-indigo-500/30" },
+            { title: "Active Clients", value: activeCount.toString(), icon: <UserCheck size={20} className="text-emerald-100" />, bg: "bg-gradient-to-br from-emerald-600 to-teal-500 border-emerald-500/30" },
+            { title: "New Acquisitions", value: newCount.toString(), icon: <TrendingUp size={20} className="text-amber-100" />, bg: "bg-gradient-to-br from-amber-500 to-orange-500 border-amber-500/30" },
+            { title: "Dormant Profiles", value: (customers.length - activeCount - newCount).toString(), icon: <Clock size={20} className="text-rose-100" />, bg: "bg-gradient-to-br from-rose-500 to-pink-500 border-rose-500/30" },
           ].map((stat, i) => (
-            <div key={i} className="p-5 rounded-2xl bg-neutral-900/40 backdrop-blur-xl border border-white/5 shadow-lg">
-              <div className="flex items-center justify-between mb-4">
-                <span className="text-xs font-bold uppercase tracking-wider text-neutral-500">{stat.title}</span>
-                <div className={`p-2 rounded-lg border ${stat.bg} ${stat.color}`}>
-                  <stat.icon size={16} />
+            <div key={i} className={`p-5 rounded-2xl ${stat.bg} border shadow-lg relative overflow-hidden transition-transform hover:-translate-y-1`}>
+              <div className="absolute top-0 right-0 -mt-4 -mr-4 w-24 h-24 bg-white opacity-10 rounded-full blur-xl pointer-events-none" />
+              <div className="flex items-center justify-between mb-3 relative z-10">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-white/80 drop-shadow-sm">{stat.title}</span>
+                <div className="p-2 bg-black/20 rounded-lg backdrop-blur-md">
+                  {stat.icon}
                 </div>
               </div>
-              <h2 className="text-3xl font-black text-white">
-                {isLoading ? <div className="h-8 w-16 bg-neutral-800 animate-pulse rounded-lg" /> : stat.value}
+              <h2 className="text-3xl font-black text-white relative z-10 drop-shadow-md">
+                {isLoading ? <div className="h-8 w-16 bg-white/20 animate-pulse rounded-md" /> : stat.value}
               </h2>
             </div>
           ))}
@@ -269,9 +270,10 @@ export default function CustomersPage() {
                 <thead className="text-xs text-neutral-400 uppercase bg-neutral-950/60 tracking-wider">
                   <tr>
                     <th className="px-6 py-5 font-bold">Client Identity</th>
-                    <th className="px-6 py-5 font-bold">Contact Vector</th>
+                    <th className="px-6 py-5 font-bold">Contact Details</th>
+                    <th className="px-6 py-5 font-bold">Address & Reg. Date</th>
                     <th className="px-6 py-5 font-bold">Status</th>
-                    <th className="px-6 py-5 font-bold">Total Orders</th>
+                    <th className="px-6 py-5 font-bold">Orders</th>
                     <th className="px-6 py-5 font-bold text-right">Actions</th>
                   </tr>
                 </thead>
@@ -297,6 +299,12 @@ export default function CustomersPage() {
                         <div className="flex flex-col">
                           <span className="text-neutral-300 font-medium">{customer.phone}</span>
                           {customer.email && <span className="text-[11px] text-neutral-500">{customer.email}</span>}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="flex flex-col">
+                          <span className="text-neutral-300 text-xs truncate max-w-[150px]">{customer.address || "N/A"}</span>
+                          <span className="text-[10px] text-neutral-500 mt-0.5">Reg: {customer.createdAt ? new Date(customer.createdAt).toLocaleDateString() : "Unknown"}</span>
                         </div>
                       </td>
                       <td className="px-6 py-4">
@@ -403,21 +411,41 @@ export default function CustomersPage() {
                      <h3 className="text-sm font-bold text-white flex items-center gap-2"><Ruler size={16} className="text-amber-400"/> Anatomical Metrics</h3>
                      <button className="text-xs text-indigo-400 font-bold hover:underline">Edit</button>
                    </div>
-                   {/* Mock Data based on gender */}
+                   {/* Strict Scope Anatomical Metrics based on gender */}
                    <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
                      {(selectedProfile.gender === "Male" || selectedProfile.gender === "All") ? (
                        <>
-                         <div className="bg-neutral-950 p-2 rounded-lg border border-neutral-800 text-center"><span className="block text-[9px] text-neutral-500 uppercase font-bold">Neck</span><span className="text-sm font-mono text-white">15.5"</span></div>
-                         <div className="bg-neutral-950 p-2 rounded-lg border border-neutral-800 text-center"><span className="block text-[9px] text-neutral-500 uppercase font-bold">Chest</span><span className="text-sm font-mono text-white">40.0"</span></div>
-                         <div className="bg-neutral-950 p-2 rounded-lg border border-neutral-800 text-center"><span className="block text-[9px] text-neutral-500 uppercase font-bold">Waist</span><span className="text-sm font-mono text-white">34.0"</span></div>
-                         <div className="bg-neutral-950 p-2 rounded-lg border border-neutral-800 text-center"><span className="block text-[9px] text-neutral-500 uppercase font-bold">Sleeve</span><span className="text-sm font-mono text-white">25.0"</span></div>
+                         {[
+                           { label: "Neck", val: "15.5\"" },
+                           { label: "Chest", val: "40.0\"" },
+                           { label: "Waist", val: "34.0\"" },
+                           { label: "Hip", val: "41.0\"" },
+                           { label: "Shoulder", val: "18.5\"" },
+                           { label: "Sleeve Length", val: "25.0\"" },
+                           { label: "Shirt Length", val: "29.0\"" },
+                           { label: "Trouser Length", val: "40.0\"" },
+                         ].map(m => (
+                           <div key={m.label} className="bg-neutral-950 p-2 rounded-lg border border-neutral-800 text-center">
+                             <span className="block text-[9px] text-neutral-500 uppercase font-bold truncate">{m.label}</span>
+                             <span className="text-sm font-mono text-white">{m.val}</span>
+                           </div>
+                         ))}
                        </>
                      ) : (
                        <>
-                         <div className="bg-neutral-950 p-2 rounded-lg border border-neutral-800 text-center"><span className="block text-[9px] text-neutral-500 uppercase font-bold">Bust</span><span className="text-sm font-mono text-white">36.0"</span></div>
-                         <div className="bg-neutral-950 p-2 rounded-lg border border-neutral-800 text-center"><span className="block text-[9px] text-neutral-500 uppercase font-bold">Waist</span><span className="text-sm font-mono text-white">28.0"</span></div>
-                         <div className="bg-neutral-950 p-2 rounded-lg border border-neutral-800 text-center"><span className="block text-[9px] text-neutral-500 uppercase font-bold">Hip</span><span className="text-sm font-mono text-white">38.5"</span></div>
-                         <div className="bg-neutral-950 p-2 rounded-lg border border-neutral-800 text-center"><span className="block text-[9px] text-neutral-500 uppercase font-bold">Length</span><span className="text-sm font-mono text-white">58.0"</span></div>
+                         {[
+                           { label: "Bust", val: "36.0\"" },
+                           { label: "Waist", val: "28.0\"" },
+                           { label: "Hip", val: "38.5\"" },
+                           { label: "Shoulder", val: "16.0\"" },
+                           { label: "Sleeve", val: "24.0\"" },
+                           { label: "Dress Length", val: "58.0\"" },
+                         ].map(m => (
+                           <div key={m.label} className="bg-neutral-950 p-2 rounded-lg border border-neutral-800 text-center">
+                             <span className="block text-[9px] text-neutral-500 uppercase font-bold truncate">{m.label}</span>
+                             <span className="text-sm font-mono text-white">{m.val}</span>
+                           </div>
+                         ))}
                        </>
                      )}
                    </div>

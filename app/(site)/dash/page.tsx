@@ -17,12 +17,13 @@ import { doc, getDoc } from "firebase/firestore";
 // --- TypeScript Interfaces ---
 interface DashboardStats {
   totalCustomers: number;
-  activeProduction: number;
-  readyForPickup: number;
-  completedOrders: number; // NEW
-  totalRevenue: number;
-  dailyRevenue: number;    // NEW
-  pendingPayments: number; // NEW
+  totalOrders: number;
+  pendingOrders: number;
+  ordersInProgress: number;
+  readyOrders: number;
+  deliveredOrders: number;
+  revenueToday: number;
+  revenueThisMonth: number;
   lowStockAlerts: number;
 }
 
@@ -42,23 +43,14 @@ interface InventoryAlert {
   unit: string;
 }
 
-interface EmployeeStat {
-  id: string;
-  name: string;
-  role: string;
-  completedJobs: number;
-  efficiency: number; // Percentage score
-}
-
 export default function DashboardPage() {
   const router = useRouter();
 
   // --- State Management ---
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [recentOrders, setRecentOrders] = useState<Order[]>([]);
-  const [upcomingDeliveries, setUpcomingDeliveries] = useState<Order[]>([]); // NEW
+  const [upcomingDeliveries, setUpcomingDeliveries] = useState<Order[]>([]); 
   const [inventoryAlerts, setInventoryAlerts] = useState<InventoryAlert[]>([]);
-  const [employeeStats, setEmployeeStats] = useState<EmployeeStat[]>([]); // NEW
   const [isLoading, setIsLoading] = useState(true);
 
   // ---  State ---
@@ -101,15 +93,13 @@ export default function DashboardPage() {
         const results = await Promise.allSettled([
           fetch('/api/dashboard'),
           fetch('/api/orders'),
-          fetch('/api/inventory'),
-          fetch('/api/employees') // Added real employee fetch
+          fetch('/api/inventory')
         ]);
 
         // Safely extract responses
         const statsRes = results[0].status === 'fulfilled' ? results[0].value : { ok: false };
         const ordersRes = results[1].status === 'fulfilled' ? results[1].value : { ok: false };
         const inventoryRes = results[2].status === 'fulfilled' ? results[2].value : { ok: false };
-        const employeesRes = results[3].status === 'fulfilled' ? results[3].value : { ok: false };
 
         // 1. Set REAL KPI Stats
         if ((statsRes as Response).ok) {
@@ -118,22 +108,7 @@ export default function DashboardPage() {
           else setStats(null);
         } else setStats(null);
 
-        // 2. Set REAL Employee Performance
-        if ((employeesRes as Response).ok) {
-          const empJson = await (employeesRes as Response).json();
-          if (empJson.success) {
-            const mappedEmps = empJson.data.map((e: any) => ({
-              id: e.id,
-              name: e.fullName || "Unknown",
-              role: e.role || "Staff",
-              completedJobs: e.completedJobs || 0,
-              efficiency: e.efficiency || 100
-            })).slice(0, 3); // Show top 3
-            setEmployeeStats(mappedEmps);
-          } else setEmployeeStats([]);
-        } else setEmployeeStats([]);
-
-        // 3. Set REAL Orders & Deliveries
+        // 2. Set REAL Orders & Deliveries
         if ((ordersRes as Response).ok) {
           const ordersJson = await (ordersRes as Response).json();
           if (ordersJson.success) {
@@ -252,52 +227,36 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* --- FINANCIAL / NEO-BRUTALIST ROW (New) --- */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="p-5 rounded-2xl bg-emerald-500/5 border-2 border-emerald-500/30 shadow-[4px_4px_0px_0px_rgba(16,185,129,0.2)] flex items-center justify-between transition-transform hover:-translate-y-1">
-          <div>
-             <span className="text-xs font-bold uppercase tracking-wider text-emerald-500 mb-1 block">Daily Revenue (Today)</span>
-             <h2 className="text-4xl font-black text-emerald-400 tracking-tight">
-               {isLoading ? <span className="animate-pulse">...</span> : `$${stats?.dailyRevenue.toLocaleString()}`}
-             </h2>
-          </div>
-          <div className="h-14 w-14 rounded-xl bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20">
-             <TrendingUp size={28} className="text-emerald-400" />
-          </div>
-        </div>
-
-        <div className="p-5 rounded-2xl bg-rose-500/5 border-2 border-rose-500/30 shadow-[4px_4px_0px_0px_rgba(244,63,94,0.2)] flex items-center justify-between transition-transform hover:-translate-y-1">
-          <div>
-             <span className="text-xs font-bold uppercase tracking-wider text-rose-500 mb-1 block">Pending Payments (Bal)</span>
-             <h2 className="text-4xl font-black text-rose-400 tracking-tight">
-               {isLoading ? <span className="animate-pulse">...</span> : `$${stats?.pendingPayments.toLocaleString()}`}
-             </h2>
-          </div>
-          <div className="h-14 w-14 rounded-xl bg-rose-500/10 flex items-center justify-center border border-rose-500/20">
-             <Wallet size={28} className="text-rose-400" />
-          </div>
-        </div>
-      </div>
-
-      {/* --- STANDARD KPI ROW --- */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      {/* --- GRADIENT KPI ROW (Exact Scope) --- */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {[
-          { title: "Active Production", value: stats?.activeProduction, icon: Scissors, color: "text-amber-400", bg: "bg-amber-500/10 border-amber-500/20" },
-          { title: "Ready for Pickup", value: stats?.readyForPickup, icon: PackageCheck, color: "text-cyan-400", bg: "bg-cyan-500/10 border-cyan-500/20" },
-          { title: "Completed Orders", value: stats?.completedOrders, icon: CheckCircle2, color: "text-emerald-400", bg: "bg-emerald-500/10 border-emerald-500/20" },
-          { title: "Total Lifetime Rev", value: stats?.totalRevenue ? `$${stats.totalRevenue.toLocaleString()}` : undefined, icon: DollarSign, color: "text-indigo-400", bg: "bg-indigo-500/10 border-indigo-500/20" },
-        ].map((stat, i) => (
-          <div key={i} className="p-5 rounded-2xl bg-neutral-900/40 backdrop-blur-xl border border-white/5 shadow-lg">
-            <div className="flex items-center justify-between mb-3">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-neutral-500 truncate pr-2">{stat.title}</span>
-              <div className={`p-2 rounded-lg border ${stat.bg} ${stat.color} shrink-0`}>
-                <stat.icon size={14} />
+          { title: "Total Customers", value: stats?.totalCustomers || 0, icon: <Users size={20} className="text-blue-200" />, gradient: "from-blue-600 to-cyan-500 border-blue-500/30 shadow-blue-500/20" },
+          { title: "Total Orders", value: stats?.totalOrders || 0, icon: <Layers size={20} className="text-indigo-200" />, gradient: "from-indigo-600 to-purple-500 border-indigo-500/30 shadow-indigo-500/20" },
+          { title: "Pending Orders", value: stats?.pendingOrders || 0, icon: <Clock size={20} className="text-amber-200" />, gradient: "from-amber-600 to-orange-500 border-amber-500/30 shadow-amber-500/20" },
+          { title: "Orders In Progress", value: stats?.ordersInProgress || 0, icon: <Scissors size={20} className="text-rose-200" />, gradient: "from-rose-600 to-pink-500 border-rose-500/30 shadow-rose-500/20" },
+          { title: "Ready Orders", value: stats?.readyOrders || 0, icon: <CheckCircle2 size={20} className="text-emerald-200" />, gradient: "from-emerald-600 to-teal-500 border-emerald-500/30 shadow-emerald-500/20" },
+          { title: "Delivered Orders", value: stats?.deliveredOrders || 0, icon: <PackageCheck size={20} className="text-cyan-200" />, gradient: "from-cyan-600 to-blue-500 border-cyan-500/30 shadow-cyan-500/20" },
+          { title: "Revenue Today", value: `$${stats?.revenueToday?.toLocaleString() || 0}`, icon: <TrendingUp size={20} className="text-green-200" />, gradient: "from-green-600 to-emerald-500 border-green-500/30 shadow-green-500/20" },
+          { title: "Revenue This Month", value: `$${stats?.revenueThisMonth?.toLocaleString() || 0}`, icon: <Wallet size={20} className="text-violet-200" />, gradient: "from-violet-600 to-purple-500 border-violet-500/30 shadow-violet-500/20" },
+        ].map((card, idx) => (
+          <motion.div
+            key={idx}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: idx * 0.1 }}
+            className={`p-5 rounded-2xl border bg-gradient-to-br ${card.gradient} shadow-lg flex flex-col gap-3 relative overflow-hidden`}
+          >
+            <div className="absolute top-0 right-0 -mt-4 -mr-4 w-24 h-24 bg-white opacity-10 rounded-full blur-xl pointer-events-none" />
+            <div className="flex justify-between items-center relative z-10">
+              <span className="text-[11px] font-bold text-white/80 uppercase tracking-wider drop-shadow-sm">{card.title}</span>
+              <div className="p-2 bg-black/20 rounded-lg backdrop-blur-sm">
+                {card.icon}
               </div>
             </div>
-            <h2 className="text-2xl font-black text-white">
-              {isLoading ? <div className="h-8 w-16 bg-neutral-800 animate-pulse rounded-md" /> : stat.value || "0"}
+            <h2 className="text-3xl font-black text-white relative z-10 drop-shadow-md">
+              {isLoading ? <div className="h-8 w-16 bg-white/20 animate-pulse rounded-md" /> : card.value}
             </h2>
-          </div>
+          </motion.div>
         ))}
       </div>
 
@@ -349,41 +308,7 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          {/* Employee Performance Leaderboard (NEW) */}
-          <div className="rounded-2xl bg-neutral-900/40 backdrop-blur-xl border border-white/5 shadow-xl overflow-hidden flex flex-col">
-            <div className="p-5 border-b border-white/5 flex justify-between items-center bg-neutral-950/30">
-              <div className="flex items-center gap-2">
-                <Award className="text-amber-400" size={16} />
-                <h3 className="text-md font-bold text-white">Workshop Performance</h3>
-              </div>
-            </div>
-            <div className="p-5 grid grid-cols-1 md:grid-cols-3 gap-4">
-               {employeeStats.map((emp) => (
-                 <div key={emp.id} className="bg-neutral-950/50 border border-neutral-800 rounded-xl p-4 flex flex-col gap-3">
-                    <div className="flex justify-between items-start">
-                       <div>
-                         <h4 className="font-bold text-white text-sm">{emp.name}</h4>
-                         <span className="text-[10px] text-neutral-500 font-mono uppercase tracking-wider">{emp.role}</span>
-                       </div>
-                       <div className="text-right">
-                         <span className="text-xl font-black text-amber-400">{emp.completedJobs}</span>
-                         <span className="block text-[9px] text-neutral-500 uppercase">Jobs Done</span>
-                       </div>
-                    </div>
-                    {/* Efficiency Bar */}
-                    <div>
-                      <div className="flex justify-between text-[10px] font-bold mb-1">
-                        <span className="text-neutral-400">Efficiency</span>
-                        <span className={emp.efficiency > 90 ? "text-emerald-400" : "text-amber-400"}>{emp.efficiency}%</span>
-                      </div>
-                      <div className="h-1.5 w-full bg-neutral-900 rounded-full overflow-hidden">
-                        <div className={`h-full rounded-full ${emp.efficiency > 90 ? "bg-emerald-500" : "bg-amber-500"}`} style={{ width: `${emp.efficiency}%` }} />
-                      </div>
-                    </div>
-                 </div>
-               ))}
-            </div>
-          </div>
+          
 
         </div>
 

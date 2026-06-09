@@ -12,7 +12,7 @@ import OrderForm from "@/components/forms/OrderForm";
 import { DragDropContext, Droppable, Draggable, DropResult } from "@hello-pangea/dnd";
 
 // --- TypeScript Interfaces ---
-type OrderStatus = "Pending" | "Measuring" | "Cutting" | "Sewing" | "Fitting" | "Finishing" | "Ready" | "Delivered" | "Cancelled";
+type OrderStatus = "Pending" | "Cutting" | "Stitching" | "Finishing" | "Ready" | "Delivered";
 
 interface Order {
   id: string;
@@ -21,6 +21,7 @@ interface Order {
   physicalTag: string;
   garmentType: string;
   fabric: string;
+  quantity: number | string; // NEW: Added from Master Scope
   status: OrderStatus;
   total: number;
   deposit: number;
@@ -29,8 +30,8 @@ interface Order {
   createdAt?: string;
 }
 
-const ALL_STATUSES: OrderStatus[] = ["Pending", "Measuring", "Cutting", "Sewing", "Fitting", "Finishing", "Ready", "Delivered", "Cancelled"];
-const BOARD_COLUMNS: OrderStatus[] = ["Pending", "Measuring", "Cutting", "Sewing", "Fitting", "Finishing", "Ready"];
+const ALL_STATUSES: OrderStatus[] = ["Pending", "Cutting", "Stitching", "Finishing", "Ready", "Delivered"];
+const BOARD_COLUMNS: OrderStatus[] = ["Pending", "Cutting", "Stitching", "Finishing", "Ready"];
 
 export default function OrdersPage() {
   const [orders, setOrders] = useState<Order[]>([]);
@@ -140,14 +141,11 @@ export default function OrdersPage() {
   const StatusBadge = ({ status }: { status: string }) => {
     const colors: Record<string, string> = {
       Pending: "bg-neutral-500/10 text-neutral-400 border-neutral-500/20",
-      Measuring: "bg-violet-500/10 text-violet-400 border-violet-500/20",
       Cutting: "bg-amber-500/10 text-amber-400 border-amber-500/20",
-      Sewing: "bg-blue-500/10 text-blue-400 border-blue-500/20",
-      Fitting: "bg-pink-500/10 text-pink-400 border-pink-500/20",
+      Stitching: "bg-blue-500/10 text-blue-400 border-blue-500/20",
       Finishing: "bg-cyan-500/10 text-cyan-400 border-cyan-500/20",
       Ready: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
       Delivered: "bg-neutral-800 text-neutral-500 border-neutral-700",
-      Cancelled: "bg-rose-500/10 text-rose-400 border-rose-500/20",
     };
     return (
       <span className={`inline-flex items-center px-2.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider border ${colors[status] || colors.Pending}`}>
@@ -185,35 +183,38 @@ export default function OrdersPage() {
           </button>
         </header>
 
-        {/* --- KPI Stats Matrix --- */}
+        {/* --- KPI Stats Matrix (Colorful Gradients) --- */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <div className="p-5 rounded-2xl bg-neutral-900/40 backdrop-blur-xl border border-white/5 shadow-lg flex items-center justify-between">
-            <div>
-              <span className="text-[10px] font-bold uppercase tracking-wider text-neutral-500">Active Workload</span>
-              <h2 className="text-3xl font-black text-white mt-1">{activeOrdersCount}</h2>
+          <div className="p-5 rounded-2xl bg-gradient-to-br from-indigo-600 to-purple-500 border border-indigo-500/30 shadow-lg flex items-center justify-between relative overflow-hidden transition-transform hover:-translate-y-1">
+            <div className="absolute top-0 right-0 -mt-4 -mr-4 w-24 h-24 bg-white opacity-10 rounded-full blur-xl pointer-events-none" />
+            <div className="relative z-10">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-white/80 drop-shadow-sm">Active Workload</span>
+              <h2 className="text-3xl font-black text-white mt-1 drop-shadow-md">{activeOrdersCount}</h2>
             </div>
-            <div className="p-3 rounded-xl border bg-indigo-500/10 border-indigo-500/20 text-indigo-400">
-              <LayoutGrid size={20} />
+            <div className="p-3 rounded-xl bg-black/20 backdrop-blur-md relative z-10">
+              <LayoutGrid size={20} className="text-indigo-100" />
             </div>
           </div>
           
-          <div className="p-5 rounded-2xl bg-neutral-900/40 backdrop-blur-xl border border-white/5 shadow-lg flex items-center justify-between">
-            <div>
-              <span className="text-[10px] font-bold uppercase tracking-wider text-neutral-500">Ready for Pickup</span>
-              <h2 className="text-3xl font-black text-white mt-1">{readyForPickupCount}</h2>
+          <div className="p-5 rounded-2xl bg-gradient-to-br from-emerald-600 to-teal-500 border border-emerald-500/30 shadow-lg flex items-center justify-between relative overflow-hidden transition-transform hover:-translate-y-1">
+            <div className="absolute top-0 right-0 -mt-4 -mr-4 w-24 h-24 bg-white opacity-10 rounded-full blur-xl pointer-events-none" />
+            <div className="relative z-10">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-white/80 drop-shadow-sm">Ready for Pickup</span>
+              <h2 className="text-3xl font-black text-white mt-1 drop-shadow-md">{readyForPickupCount}</h2>
             </div>
-            <div className="p-3 rounded-xl border bg-emerald-500/10 border-emerald-500/20 text-emerald-400">
-              <CheckCircle2 size={20} />
+            <div className="p-3 rounded-xl bg-black/20 backdrop-blur-md relative z-10">
+              <CheckCircle2 size={20} className="text-emerald-100" />
             </div>
           </div>
 
-          <div className="p-5 rounded-2xl bg-neutral-900/40 backdrop-blur-xl border border-white/5 shadow-lg flex items-center justify-between">
-            <div>
-              <span className="text-[10px] font-bold uppercase tracking-wider text-neutral-500">Pending Balances</span>
-              <h2 className="text-3xl font-black text-white mt-1">${totalRevenuePending.toLocaleString()}</h2>
+          <div className="p-5 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-500 border border-amber-500/30 shadow-lg flex items-center justify-between relative overflow-hidden transition-transform hover:-translate-y-1">
+            <div className="absolute top-0 right-0 -mt-4 -mr-4 w-24 h-24 bg-white opacity-10 rounded-full blur-xl pointer-events-none" />
+            <div className="relative z-10">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-white/80 drop-shadow-sm">Pending Balances</span>
+              <h2 className="text-3xl font-black text-white mt-1 drop-shadow-md">${totalRevenuePending.toLocaleString()}</h2>
             </div>
-            <div className="p-3 rounded-xl border bg-amber-500/10 border-amber-500/20 text-amber-400">
-              <DollarSign size={20} />
+            <div className="p-3 rounded-xl bg-black/20 backdrop-blur-md relative z-10">
+              <DollarSign size={20} className="text-amber-100" />
             </div>
           </div>
         </div>
@@ -299,7 +300,10 @@ export default function OrdersPage() {
                                   </div>
                                   <h4 className="font-bold text-white text-sm">{order.customerName || "Unknown Client"}</h4>
                                   <div className="flex flex-col gap-2 mt-1">
-                                    <span className="text-xs text-neutral-400">{order.garmentType}</span>
+                                    <span className="text-xs text-neutral-400">
+                                      {order.garmentType} 
+                                      <span className="text-indigo-400 font-bold ml-1 bg-indigo-500/10 px-1 py-0.5 rounded text-[10px]">x{order.quantity || 1}</span>
+                                    </span>
                                     {order.physicalTag && (
                                       <span className="inline-flex items-center gap-1 w-fit px-1.5 py-0.5 rounded text-[10px] font-mono font-bold bg-amber-500/10 text-amber-500 border border-amber-500/20">
                                         <Tag size={10} /> {order.physicalTag}
@@ -385,7 +389,10 @@ export default function OrdersPage() {
                         </td>
                         <td className="px-6 py-4">
                           <div className="flex flex-col">
-                            <span className="font-medium text-neutral-200">{order.garmentType}</span>
+                            <span className="font-medium text-neutral-200">
+                              {order.garmentType} 
+                              <span className="text-indigo-400 font-bold ml-1.5 text-xs">x{order.quantity || 1}</span>
+                            </span>
                             <span className="text-xs text-neutral-500 mt-0.5">{order.fabric}</span>
                           </div>
                         </td>
