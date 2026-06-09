@@ -106,7 +106,7 @@ const menuItems: MenuItem[] = [
       { name: "Financial Reports", icon: Briefcase, href: "/reports" },
     ]
   },
-  { name: "Notifications", icon: BellRing, href: "/notifications" },
+ 
 ];
 
 export default function Sidebar() {
