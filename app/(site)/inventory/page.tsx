@@ -10,7 +10,7 @@ import {
   DollarSign, History, ArrowRightCircle,
   UserCircle2, QrCode, Printer
 } from "lucide-react";
-import InventoryForm, { InventoryItemData } from "./../../../components/forms/InventoryForm"; // Adjust import path if needed
+import InventoryForm, { InventoryItemData } from "./../../../components/forms/InventoryForm";
 
 // --- TypeScript Interfaces ---
 export type CategoryType = "Fabric" | "Thread" | "Buttons" | "Zippers" | "Accessories";
@@ -48,10 +48,10 @@ export default function InventoryPage() {
   const [activeMenuId, setActiveMenuId] = useState<string | null>(null);
   const [selectedHistoryItem, setSelectedHistoryItem] = useState<InventoryItem | null>(null);
   
-  // NEW: State for the QR Code Generator Modal
+  // QR Code Generator Modal
   const [qrModalItem, setQrModalItem] = useState<InventoryItem | null>(null);
 
-  // NEW: Form Modal State
+  // Form Modal State
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<InventoryItemData | undefined>(undefined);
 
@@ -97,7 +97,6 @@ export default function InventoryPage() {
 
   // --- Handlers ---
   const handleQuickAdjust = async (id: string, amount: number) => {
-    // 1. Optimistic UI Update (Instant change on screen)
     setInventory(currentInv => currentInv.map(item => {
       if (item.id === id) {
         const prev = Number(item.quantity);
@@ -110,7 +109,7 @@ export default function InventoryPage() {
           previousStock: prev,
           newStock: newQuantity,
           date: new Date().toLocaleString('en-US', { hour12: true, month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }),
-          user: "Mubarik (Admin)"
+          user: "Admin"
         };
 
         return { ...item, quantity: newQuantity, logs: [newLog, ...(item.logs || [])] };
@@ -118,7 +117,6 @@ export default function InventoryPage() {
       return item;
     }));
 
-    // 2. Real Database Update via the route we created earlier
     try {
       await fetch('/api/inventory/adjust', {
         method: 'PATCH',
@@ -135,45 +133,32 @@ export default function InventoryPage() {
     setActiveMenuId(null);
   };
 
-  {/* --- KPI Stats Matrix (Warehouse Themed Gradients) --- */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {[
-            { title: "Capital in Stock", value: `$${totalValue.toLocaleString()}`, icon: <DollarSign size={20} className="text-teal-100" />, trend: "Total Valuation", bg: "bg-gradient-to-br from-teal-600 to-emerald-700 border-teal-500/30" },
-            { title: "Total Unique SKUs", value: inventory.length.toString(), icon: <Layers size={20} className="text-blue-100" />, trend: "Active Items", bg: "bg-gradient-to-br from-blue-700 to-indigo-800 border-blue-500/30" },
-            { title: "Low Stock Vectors", value: lowStockItems.length.toString(), icon: <TrendingDown size={20} className="text-orange-100" />, trend: "Requires Attention", bg: "bg-gradient-to-br from-orange-500 to-amber-600 border-orange-500/30" },
-            { title: "Critical Depletion", value: criticalStockItems.length.toString(), icon: <AlertTriangle size={20} className="text-red-100" />, trend: "Zero Stock Remaining", bg: "bg-gradient-to-br from-red-600 to-rose-700 border-red-500/30" },
-          ].map((stat, i) => (
-            <div key={i} className={`p-5 rounded-2xl ${stat.bg} border shadow-xl relative overflow-hidden transition-all hover:scale-[1.02]`}>
-              {/* Unique geometric flare for the Inventory page */}
-              <div className="absolute -bottom-6 -right-6 w-32 h-32 bg-white opacity-5 rotate-45 rounded-3xl pointer-events-none" />
-              
-              <div className="flex items-center justify-between mb-4 relative z-10">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-white/80 drop-shadow-sm">{stat.title}</span>
-                <div className="p-2 bg-black/20 rounded-lg backdrop-blur-md border border-white/10">
-                  {stat.icon}
-                </div>
-              </div>
-              <div className="flex items-baseline gap-1 relative z-10">
-                <h2 className="text-3xl font-black text-white drop-shadow-md">
-                   {isLoading ? <div className="h-8 w-16 bg-white/20 animate-pulse rounded-lg" /> : stat.value}
-                </h2>
-              </div>
-              <p className="text-[10px] mt-2 font-bold text-white/70 tracking-wide relative z-10">{stat.trend}</p>
-            </div>
-          ))}
-        </div>
+  // NEW: Correctly configured DELETE handler using the proper route and template literal
+  const handleDelete = async (id: string) => {
+    if (!window.confirm("Are you sure you want to delete this supply vector?")) return;
+    
+    // Optimistic UI Removal
+    setInventory(current => current.filter(item => item.id !== id));
+    setActiveMenuId(null);
 
-  // NEW: Print Handler for the QR Label
+    try {
+      const res = await fetch(`/api/inventory/adjust/${id}`, {
+        method: 'DELETE'
+      });
+      if (!res.ok) fetchInventory(); // Resync if the API call fails
+    } catch (error) {
+      console.error("Failed to delete item:", error);
+      fetchInventory();
+    }
+  };
+
   const handlePrintQR = () => {
     if (!qrModalItem) return;
     
-    // Open a temporary print window
     const printWindow = window.open('', '_blank');
     if (printWindow) {
-      // Grab the raw SVG HTML from the DOM container
       const svgElement = document.getElementById('qr-svg-container')?.innerHTML || '';
       
-      // Inject purely black and white printable HTML
       printWindow.document.write(`
         <html>
           <head>
@@ -201,7 +186,6 @@ export default function InventoryPage() {
               <div class="meta">${qrModalItem.category} • ${qrModalItem.color || 'Standard'}</div>
             </div>
             <script>
-              // Wait a fraction of a second for the SVG to render, then trigger print
               setTimeout(() => { window.print(); window.close(); }, 250);
             </script>
           </body>
@@ -216,13 +200,12 @@ export default function InventoryPage() {
     const styles: Record<CategoryType, string> = {
       Fabric: "bg-indigo-500/10 text-indigo-400 border-indigo-500/20",
       Thread: "bg-cyan-500/10 text-cyan-400 border-cyan-500/20",
-      Buttons: "bg-fuchsia-500/10 text-fuchsia-400 border-fuchsia-500/20",
-      Zippers: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
-      Accessories: "bg-purple-500/10 text-purple-500/20 border-purple-500/20",
-      Hardware: "bg-amber-500/10 text-amber-400 border-amber-500/20",
+      Buttons: "bg-amber-500/10 text-amber-400 border-amber-500/20",
+      Zippers: "bg-rose-500/10 text-rose-400 border-rose-500/20",
+      Accessories: "bg-purple-500/10 text-purple-400 border-purple-500/20",
     };
     return (
-      <span className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider border ${styles[category]}`}>
+      <span className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider border ${styles[category] || "bg-neutral-800 text-neutral-400 border-neutral-700"}`}>
         {category}
       </span>
     );
@@ -256,27 +239,28 @@ export default function InventoryPage() {
           </button>
         </header>
 
-        {/* --- KPI Stats Matrix --- */}
+        {/* --- KPI Stats Matrix (Warehouse Themed Gradients integrated properly) --- */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {[
-            { title: "Capital in Stock", value: `$${totalValue.toLocaleString()}`, icon: DollarSign, trend: "Total Valuation", color: "text-emerald-400", bg: "bg-emerald-500/10 border-emerald-500/20" },
-            { title: "Total Unique SKUs", value: inventory.length.toString(), icon: Layers, trend: "Active Items", color: "text-cyan-400", bg: "bg-cyan-500/10 border-cyan-500/20" },
-            { title: "Low Stock Vectors", value: lowStockItems.length.toString(), icon: TrendingDown, trend: "Requires Attention", color: "text-amber-400", bg: "bg-amber-500/10 border-amber-500/20" },
-            { title: "Critical Depletion", value: criticalStockItems.length.toString(), icon: AlertTriangle, trend: "Zero Stock Remaining", color: "text-rose-400", bg: "bg-rose-500/10 border-rose-500/20" },
+            { title: "Capital in Stock", value: `$${totalValue.toLocaleString()}`, icon: <DollarSign size={20} className="text-teal-100" />, trend: "Total Valuation", bg: "bg-gradient-to-br from-teal-600 to-emerald-700 border-teal-500/30" },
+            { title: "Total Unique SKUs", value: inventory.length.toString(), icon: <Layers size={20} className="text-blue-100" />, trend: "Active Items", bg: "bg-gradient-to-br from-blue-700 to-indigo-800 border-blue-500/30" },
+            { title: "Low Stock Vectors", value: lowStockItems.length.toString(), icon: <TrendingDown size={20} className="text-orange-100" />, trend: "Requires Attention", bg: "bg-gradient-to-br from-orange-500 to-amber-600 border-orange-500/30" },
+            { title: "Critical Depletion", value: criticalStockItems.length.toString(), icon: <AlertTriangle size={20} className="text-red-100" />, trend: "Zero Stock Remaining", bg: "bg-gradient-to-br from-red-600 to-rose-700 border-red-500/30" },
           ].map((stat, i) => (
-            <div key={i} className={`p-5 rounded-2xl bg-neutral-900/40 backdrop-blur-xl border border-white/5 hover:border-white/10 transition-colors shadow-lg`}>
-              <div className="flex items-center justify-between mb-4">
-                <span className="text-xs font-bold uppercase tracking-wider text-neutral-500">{stat.title}</span>
-                <div className={`p-2 rounded-lg border ${stat.bg} ${stat.color}`}>
-                  <stat.icon size={16} />
+            <div key={i} className={`p-5 rounded-2xl ${stat.bg} border shadow-xl relative overflow-hidden transition-all hover:scale-[1.02]`}>
+              <div className="absolute -bottom-6 -right-6 w-32 h-32 bg-white opacity-5 rotate-45 rounded-3xl pointer-events-none" />
+              <div className="flex items-center justify-between mb-4 relative z-10">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-white/80 drop-shadow-sm">{stat.title}</span>
+                <div className="p-2 bg-black/20 rounded-lg backdrop-blur-md border border-white/10">
+                  {stat.icon}
                 </div>
               </div>
-              <div className="flex items-baseline gap-1">
-                <h2 className="text-3xl font-black text-white">
-                   {isLoading ? <div className="h-8 w-16 bg-neutral-800 animate-pulse rounded-lg" /> : stat.value}
+              <div className="flex items-baseline gap-1 relative z-10">
+                <h2 className="text-3xl font-black text-white drop-shadow-md">
+                   {isLoading ? <div className="h-8 w-16 bg-white/20 animate-pulse rounded-lg" /> : stat.value}
                 </h2>
               </div>
-              <p className={`text-xs mt-2 font-medium ${stat.color}`}>{stat.trend}</p>
+              <p className="text-[10px] mt-2 font-bold text-white/70 tracking-wide relative z-10">{stat.trend}</p>
             </div>
           ))}
         </div>
@@ -327,10 +311,6 @@ export default function InventoryPage() {
                     const threshold = Number(item.alertThreshold);
                     const isLowStock = quantity <= threshold && quantity > 0;
                     const isCritical = quantity === 0;
-
-                    function handleDelete(id: string): void {
-                      throw new Error("Function not implemented.");
-                    }
 
                     return (
                       <tr key={item.id} className={`hover:bg-white/[0.02] transition-colors group ${isLowStock ? 'bg-amber-500/[0.02]' : isCritical ? 'bg-rose-500/[0.02]' : ''}`}>
@@ -392,11 +372,9 @@ export default function InventoryPage() {
                             {activeMenuId === item.id && (
                               <motion.div initial={{ opacity: 0, scale: 0.95, y: 10 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 10 }} transition={{ duration: 0.15 }} className="absolute right-8 top-10 w-48 bg-neutral-900 border border-neutral-800 rounded-xl shadow-2xl z-50 overflow-hidden text-left">
                                 <div className="py-1">
-                                  {/* NEW: Print SKU Label Button */}
                                   <button onClick={() => { setQrModalItem(item); setActiveMenuId(null); }} className="w-full flex items-center gap-3 px-4 py-2.5 text-xs font-medium text-purple-400 hover:bg-purple-500/10 transition-colors text-left">
                                     <QrCode size={14} /> Print SKU Label
                                   </button>
-                                  
                                   <button onClick={() => handleOpenHistory(item)} className="w-full flex items-center gap-3 px-4 py-2.5 text-xs font-medium text-cyan-400 hover:bg-cyan-500/10 transition-colors text-left">
                                     <History size={14} /> View Stock Logs
                                   </button>
@@ -476,43 +454,33 @@ export default function InventoryPage() {
         )}
       </AnimatePresence>
 
-      {/* --- NEW: QR CODE GENERATOR MODAL --- */}
+      {/* --- QR CODE GENERATOR MODAL --- */}
       <AnimatePresence>
         {qrModalItem && (
           <>
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40" onClick={() => setQrModalItem(null)} />
             <div className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none">
               <motion.div initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }} className="w-full max-w-sm bg-neutral-900 border border-purple-500/20 rounded-3xl pointer-events-auto overflow-hidden shadow-2xl shadow-purple-900/20">
-                
-                {/* Header */}
                 <div className="p-5 flex justify-between items-start">
                   <h2 className="text-lg font-black text-white flex items-center gap-2"><QrCode className="text-purple-400" size={18} /> Print SKU Label</h2>
                   <button onClick={() => setQrModalItem(null)} className="p-1.5 bg-neutral-800 text-neutral-400 hover:text-white rounded-full transition-colors">
                     <X size={16} />
                   </button>
                 </div>
-
-                {/* Display QR & Info */}
                 <div className="p-6 bg-white flex flex-col items-center text-center">
                   <h3 className="text-black font-black text-lg leading-tight uppercase mb-4">{qrModalItem.name}</h3>
-                  
-                  {/* We attach an ID here so the print function can extract exactly this SVG data */}
                   <div id="qr-svg-container" className="bg-white p-2 border-2 border-black rounded-xl">
                     <QRCodeSVG value={qrModalItem.id} size={150} level="H" />
                   </div>
-                  
                   <p className="font-mono font-bold text-black mt-4 tracking-wider text-xl">{qrModalItem.id}</p>
                   <p className="text-neutral-600 text-xs font-medium uppercase mt-1">{qrModalItem.category} • {qrModalItem.color || 'Standard'}</p>
                 </div>
-
-                {/* Print Action */}
                 <div className="p-5 bg-neutral-950/50">
                   <button onClick={handlePrintQR} className="w-full bg-purple-600 hover:bg-purple-700 text-white py-3 rounded-xl text-sm font-bold transition-all shadow-lg shadow-purple-600/20 active:scale-95 flex items-center justify-center gap-2">
                     <Printer size={16} /> Send to Printer
                   </button>
                   <p className="text-center text-[10px] text-neutral-500 mt-3">This will open a clean, printer-friendly window tailored for adhesive labels.</p>
                 </div>
-
               </motion.div>
             </div>
           </>

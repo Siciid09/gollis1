@@ -5,12 +5,14 @@ import { motion, AnimatePresence } from "framer-motion";
 import { 
   User, Briefcase, Bell, Users, Save, Shield, 
   Smartphone, Globe, CreditCard, Lock, Printer, 
-  MessageSquare, Loader2, CheckCircle2
+  MessageSquare, Loader2, CheckCircle2, ArrowRight, ShieldCheck
 } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 type TabOption = "profile" | "business" | "notifications" | "team";
 
 export default function SettingsPage() {
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState<TabOption>("profile");
   const [isSaving, setIsSaving] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
@@ -25,10 +27,13 @@ export default function SettingsPage() {
 
   const [business, setBusiness] = useState({
     shopName: "Hiigsi Bespoke Tailors",
+    email: "contact@hiigsitailors.com",
+    phone: "+252 63 000 0000",
     address: "Hargeisa, Somalia",
     currency: "USD",
     taxRate: "0",
-    receiptFooter: "Thank you for trusting us with your style."
+    receiptFooter: "Thank you for trusting us with your style.",
+    logo: null
   });
 
   const [notifications, setNotifications] = useState({
@@ -237,17 +242,67 @@ export default function SettingsPage() {
                   initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.2 }}
                   className="space-y-8"
                 >
-                  <div>
-                    <h3 className="text-xl font-bold text-white mb-1">Business Parameters</h3>
-                    <p className="text-xs text-neutral-400">Configure global properties applied to invoices, receipts, and client portals.</p>
+                  {/* Header & Database Backup Button */}
+                  <div className="flex justify-between items-start mb-6">
+                    <div>
+                      <h3 className="text-xl font-bold text-white mb-1">Business Parameters</h3>
+                      <p className="text-xs text-neutral-400">Configure global properties applied to invoices, receipts, and client portals.</p>
+                    </div>
+                    <button 
+                      onClick={(e) => {
+                        e.preventDefault();
+                        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify({ profile, business, notifications }, null, 2));
+                        const dlAnchorElem = document.createElement('a');
+                        dlAnchorElem.setAttribute("href", dataStr);
+                        dlAnchorElem.setAttribute("download", `TailorSystem_Backup_${new Date().toISOString().split('T')[0]}.json`);
+                        dlAnchorElem.click();
+                      }} 
+                      className="flex items-center gap-2 bg-gradient-to-r from-emerald-600/20 to-teal-600/10 hover:from-emerald-500/30 border border-emerald-500/30 text-emerald-400 px-4 py-2.5 rounded-xl text-xs font-bold transition-all shadow-lg shadow-emerald-900/20 active:scale-95"
+                    >
+                      <Save size={14} /> Export Database Backup
+                    </button>
+                  </div>
+
+                  {/* Logo Upload UI */}
+                  <div className="flex items-center gap-6 pb-6 border-b border-white/5 mb-6">
+                    <div className="h-20 w-20 rounded-2xl bg-gradient-to-br from-neutral-800 to-neutral-900 border border-white/10 flex items-center justify-center text-neutral-500 shadow-xl overflow-hidden relative group">
+                      {business.logo ? (
+                        <img src={business.logo} alt="Logo" className="w-full h-full object-cover" />
+                      ) : (
+                        <Briefcase size={28} className="group-hover:scale-110 transition-transform duration-300" />
+                      )}
+                    </div>
+                    <div>
+                      <button className="bg-neutral-800 hover:bg-neutral-700 text-white px-4 py-2 rounded-lg text-xs font-bold transition-colors border border-neutral-700 shadow-md">
+                        Upload Shop Logo
+                      </button>
+                      <p className="text-[10px] text-neutral-500 mt-2">Recommended: 512x512px PNG with transparent background.</p>
+                    </div>
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    
                     <div className="space-y-2 md:col-span-2">
                       <label className="text-xs font-bold text-neutral-400 uppercase tracking-wider">Trading Name</label>
                       <div className="relative group">
-                        <Briefcase className="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-500" size={18} />
-                        <input type="text" value={business.shopName} onChange={(e) => setBusiness({...business, shopName: e.target.value})} className="w-full bg-neutral-950 border border-neutral-800 focus:border-indigo-500 rounded-xl py-3 pl-12 pr-4 text-white text-sm outline-none transition-all" />
+                        <Briefcase className="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-500 group-focus-within:text-indigo-400 transition-colors" size={18} />
+                        <input type="text" value={business.shopName} onChange={(e) => setBusiness({...business, shopName: e.target.value})} className="w-full bg-neutral-950 border border-neutral-800 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 rounded-xl py-3 pl-12 pr-4 text-white text-sm outline-none transition-all shadow-inner" />
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <label className="text-xs font-bold text-neutral-400 uppercase tracking-wider">Business Email</label>
+                      <div className="relative group">
+                        <Globe className="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-500 group-focus-within:text-indigo-400 transition-colors" size={18} />
+                        <input type="email" value={business.email} onChange={(e) => setBusiness({...business, email: e.target.value})} className="w-full bg-neutral-950 border border-neutral-800 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 rounded-xl py-3 pl-12 pr-4 text-white text-sm outline-none transition-all shadow-inner" />
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <label className="text-xs font-bold text-neutral-400 uppercase tracking-wider">Business Phone</label>
+                      <div className="relative group">
+                        <Smartphone className="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-500 group-focus-within:text-indigo-400 transition-colors" size={18} />
+                        <input type="tel" value={business.phone} onChange={(e) => setBusiness({...business, phone: e.target.value})} className="w-full bg-neutral-950 border border-neutral-800 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 rounded-xl py-3 pl-12 pr-4 text-white text-sm outline-none transition-all shadow-inner" />
                       </div>
                     </div>
 
@@ -344,48 +399,37 @@ export default function SettingsPage() {
                   initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.2 }}
                   className="space-y-6"
                 >
-                  <div className="flex justify-between items-end mb-6">
+                  <div className="flex justify-between items-end mb-6 border-b border-white/5 pb-6">
                     <div>
                       <h3 className="text-xl font-bold text-white mb-1">Access Control Matrix</h3>
                       <p className="text-xs text-neutral-400">Manage personnel roles and database permissions.</p>
                     </div>
-                    <button className="bg-neutral-800 hover:bg-neutral-700 text-white px-4 py-2 rounded-lg text-xs font-bold transition-colors">
-                      + Provision New User
-                    </button>
                   </div>
 
-                  <div className="border border-neutral-800 rounded-2xl overflow-hidden bg-neutral-950/50">
-                    <div className="p-4 flex items-center justify-between hover:bg-neutral-900 transition-colors border-b border-neutral-800">
-                      <div className="flex items-center gap-4">
-                        <div className="h-10 w-10 rounded-full bg-indigo-600 flex items-center justify-center text-white font-bold">{profile.fullName.charAt(0)}</div>
-                        <div>
-                          <p className="text-sm font-bold text-white">{profile.fullName} <span className="text-[10px] bg-indigo-500/20 text-indigo-400 px-2 py-0.5 rounded ml-2">You</span></p>
-                          <p className="text-xs text-neutral-500">{profile.email}</p>
-                        </div>
+                  {/* System Access & Personnel Routing */}
+                  <div className="bg-neutral-900/60 backdrop-blur-xl border border-indigo-500/20 p-6 md:p-8 rounded-3xl shadow-2xl relative overflow-hidden group">
+                    {/* Hover Glow Effect */}
+                    <div className="absolute inset-0 bg-gradient-to-r from-indigo-600/0 via-indigo-600/5 to-purple-600/0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
+                    
+                    <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 relative z-10">
+                      <div>
+                        <h3 className="text-xl font-black text-white flex items-center gap-2 mb-2">
+                          <ShieldCheck className="text-indigo-400" size={24} /> System Security Matrix
+                        </h3>
+                        <p className="text-sm text-neutral-400 max-w-md leading-relaxed">
+                          Manage personnel clearances, assign operational roles, and approve new system accounts. Restricted strictly to Admin/Owner profiles.
+                        </p>
                       </div>
-                      <span className="text-xs font-mono bg-neutral-800 px-3 py-1 rounded text-neutral-400">Admin</span>
-                    </div>
-
-                    <div className="p-4 flex items-center justify-between hover:bg-neutral-900 transition-colors border-b border-neutral-800">
-                      <div className="flex items-center gap-4">
-                        <div className="h-10 w-10 rounded-full bg-neutral-800 flex items-center justify-center text-neutral-400 font-bold">K</div>
-                        <div>
-                          <p className="text-sm font-bold text-white">Khalid Abdi</p>
-                          <p className="text-xs text-neutral-500">khalid.cutter@tailoros.com</p>
-                        </div>
-                      </div>
-                      <span className="text-xs font-mono bg-neutral-800 px-3 py-1 rounded text-neutral-400">Master Cutter</span>
-                    </div>
-
-                    <div className="p-4 flex items-center justify-between hover:bg-neutral-900 transition-colors">
-                      <div className="flex items-center gap-4">
-                        <div className="h-10 w-10 rounded-full bg-neutral-800 flex items-center justify-center text-neutral-400 font-bold">S</div>
-                        <div>
-                          <p className="text-sm font-bold text-white">Salma Hussein</p>
-                          <p className="text-xs text-neutral-500">salma.cashier@tailoros.com</p>
-                        </div>
-                      </div>
-                      <span className="text-xs font-mono bg-neutral-800 px-3 py-1 rounded text-neutral-400">Cashier</span>
+                      
+                      <button
+                        onClick={(e) => {
+                          e.preventDefault();
+                          router.push('/users'); // Navigate to the new UsersPage
+                        }}
+                        className="flex items-center gap-3 bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-4 rounded-2xl text-sm font-bold transition-all shadow-xl shadow-indigo-600/20 active:scale-95 whitespace-nowrap"
+                      >
+                        Open Security Control <ArrowRight size={16} />
+                      </button>
                     </div>
                   </div>
                 </motion.div>

@@ -16,7 +16,7 @@ import {
 } from "firebase/auth";
 import { doc, setDoc, getDoc, serverTimestamp } from "firebase/firestore";
 
-const ROLES = ["Admin/Owner", "Receptionist"];
+const ROLES = ["Manager", "Master Tailor", "Cutter", "Sewer", "Finisher"];
 
 export default function AuthPage() {
   const router = useRouter();
@@ -32,19 +32,14 @@ export default function AuthPage() {
     name: "",
     email: "",
     password: "",
-    role: "Receptionist", // Strict default to Receptionist
+    role: "Sewer", // Default role for signup
   });
 
   // --- Session Listener (Redirects if already logged in) ---
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
-        const userDoc = await getDoc(doc(db, "users", user.uid));
-        if (userDoc.exists() && userDoc.data().accepted === false) {
-          router.push("/pending");
-        } else {
-          router.push("/dash");
-        }
+        router.push("/dash");
       }
     });
     
@@ -87,10 +82,11 @@ export default function AuthPage() {
         // --- 1. LOGIN WORKFLOW ---
         const userCredential = await signInWithEmailAndPassword(auth, formData.email, formData.password);
         
+        // Optional: Check if user is "accepted" before letting them in
         const userDoc = await getDoc(doc(db, "users", userCredential.user.uid));
         if (userDoc.exists() && userDoc.data().accepted === false) {
-          router.push("/pending");
-          return;
+          // You could block them here, or let them into a "Pending Approval" dashboard
+          console.warn("Account pending admin approval.");
         }
         
         router.push("/dash");
@@ -99,19 +95,21 @@ export default function AuthPage() {
         const userCredential = await createUserWithEmailAndPassword(auth, formData.email, formData.password);
         const user = userCredential.user;
 
+        // Update Firebase Auth Profile
         await updateProfile(user, { displayName: formData.name });
 
+        // Create the Firestore Document with strict parameters
         await setDoc(doc(db, "users", user.uid), {
           uid: user.uid,
           name: formData.name,
           email: formData.email,
           role: formData.role,
-          accepted: false, 
+          accepted: false, // Default security posture: Not accepted yet
           createdAt: serverTimestamp(),
           lastLogin: serverTimestamp(),
         });
 
-        router.push("/pending");
+        router.push("/dash");
       }
     } catch (err: any) {
       console.error("Auth Error Detailed:", err);
@@ -141,20 +139,17 @@ export default function AuthPage() {
           uid: user.uid,
           name: user.displayName || "Google User",
           email: user.email,
-          role: "Receptionist", 
-          accepted: false, 
+          role: "Staff", // Generic default for Google Auth
+          accepted: false, // Default security posture
           createdAt: serverTimestamp(),
           lastLogin: serverTimestamp(),
         });
-        router.push("/pending");
       } else {
-        if (userDocSnap.data().accepted === false) {
-          router.push("/pending");
-          return;
-        }
+        // Returning User -> Just update last login
         await setDoc(userDocRef, { lastLogin: serverTimestamp() }, { merge: true });
-        router.push("/dash");
       }
+
+      router.push("/dash");
     } catch (err: any) {
       console.error("Google Auth Error:", err);
       setError("Google sign-in was cancelled or failed.");

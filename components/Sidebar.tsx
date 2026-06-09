@@ -16,16 +16,25 @@ import {
   ChevronRight,
   ChevronDown,
   LogOut,
-  CalendarDays,
-  BookImage,
-  UserCog,
   BellRing,
   Loader2,
   LogIn,
   Layers,
   Briefcase,
-  Menu, // Added for mobile trigger
-  X // Added for mobile close
+  Menu,
+  X,
+  Ruler,
+  PlusCircle,
+  Truck,
+  PackageCheck,
+  TrendingUp,
+  TrendingDown,
+  Wallet,
+  Receipt,
+  PieChart,
+  ClipboardList,
+  Users2,
+  FileText
 } from "lucide-react";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
@@ -50,24 +59,51 @@ type MenuItem = {
 
 const menuItems: MenuItem[] = [
   { name: "Dashboard", icon: LayoutDashboard, href: "/dash" },
-  { name: "Customers", icon: Users, href: "/customers" },
-  { name: "Orders", icon: Scissors, href: "/orders" },
-  { name: "Appointments", icon: CalendarDays, href: "/appointments" },
   { 
-    name: "Workshop", 
-    icon: Box, 
+    name: "Customers", 
+    icon: Users, 
     submenu: [
-      { name: "Garment Catalog", icon: BookImage, href: "/catalog" },
-      { name: "Inventory", icon: Layers, href: "/inventory" },
+      { name: "Customer Profiles", icon: Users2, href: "/customers" },
+      { name: "Measurements", icon: Ruler, href: "/customers/measurements" },
     ]
   },
   { 
-    name: "Management", 
-    icon: Briefcase, 
+    name: "Orders", 
+    icon: Scissors, 
     submenu: [
-      { name: "Workforce", icon: UserCog, href: "/employees" },
-      { name: "Payments", icon: CreditCard, href: "/payments" },
-      { name: "Reports", icon: BarChart3, href: "/reports" },
+      { name: "New Order", icon: PlusCircle, href: "/orders/new" },
+      { name: "Order Tracking", icon: ClipboardList, href: "/orders" },
+      { name: "Delivered Orders", icon: PackageCheck, href: "/orders/delivered" },
+    ]
+  },
+  { 
+    name: "Inventory", 
+    icon: Box, 
+    submenu: [
+      { name: "Materials", icon: Layers, href: "/inventory" },
+      { name: "Suppliers", icon: Truck, href: "/inventory/suppliers" },
+      { name: "Purchases", icon: Receipt, href: "/inventory/purchases" },
+    ]
+  },
+  { 
+    name: "Finance", 
+    icon: Wallet, 
+    submenu: [
+      { name: "Income", icon: TrendingUp, href: "/finance/income" },
+      { name: "Expenses", icon: TrendingDown, href: "/finance/expenses" },
+      { name: "Payments", icon: CreditCard, href: "/finance/payments" },
+      { name: "Invoices", icon: FileText, href: "/finance/invoices" },
+      { name: "Profit Reports", icon: PieChart, href: "/finance/profit" },
+    ]
+  },
+  { 
+    name: "Reports", 
+    icon: BarChart3, 
+    submenu: [
+      { name: "Customer Reports", icon: Users, href: "/reports/customers" },
+      { name: "Order Reports", icon: Scissors, href: "/reports/orders" },
+      { name: "Inventory Reports", icon: Box, href: "/reports/inventory" },
+      { name: "Financial Reports", icon: Briefcase, href: "/reports" },
     ]
   },
   { name: "Notifications", icon: BellRing, href: "/notifications" },

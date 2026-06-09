@@ -16,35 +16,39 @@ export async function GET(req: NextRequest) {
     
     // 2. Set up variables for our calculations
     const now = new Date();
-    // Creates a timestamp for midnight today to check against 'createdAt'
+    // Date boundaries for financial tracking
     const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString();
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString(); 
 
-    let activeProduction = 0;
-    let readyForPickup = 0;
-    let completedOrders = 0;
-    let totalRevenue = 0;
-    let dailyRevenue = 0;
-    let pendingPayments = 0;
+    const totalOrders = orders.length;
+    let pendingOrders = 0;
+    let ordersInProgress = 0;
+    let readyOrders = 0;
+    let deliveredOrders = 0;
+    
+    let revenueToday = 0;
+    let revenueThisMonth = 0;
 
     // 3. Loop through orders ONCE to calculate all KPIs efficiently
     orders.forEach(o => {
-      // --- Status Tracking ---
-      if (["Cutting", "Sewing", "Fitting"].includes(o.status)) activeProduction++;
-      if (o.status === "Ready") readyForPickup++;
-      if (o.status === "Delivered") completedOrders++;
+      // --- Strict Scope Status Tracking ---
+      if (o.status === "Pending") pendingOrders++;
+      // Groups Cutting, Stitching, and Finishing
+      if (["Cutting", "Stitching", "Finishing"].includes(o.status)) ordersInProgress++;
+      if (o.status === "Ready") readyOrders++;
+      if (o.status === "Delivered") deliveredOrders++;
 
       // --- Financial Tracking ---
       const total = Number(o.totalAmount) || 0;
-      const deposit = Number(o.depositPaid) || 0;
-      // Fallback to total - deposit if balance wasn't explicitly saved
-      const balance = Number(o.balance) || (total - deposit);
 
-      totalRevenue += total;
-      pendingPayments += Math.max(0, balance); // Ensure no negative balances skew the data
-
-      // --- Daily Revenue Check ---
-      if (o.createdAt && o.createdAt >= startOfToday) {
-        dailyRevenue += total;
+      // --- Time-based Revenue Checks ---
+      if (o.createdAt) {
+        if (o.createdAt >= startOfToday) {
+          revenueToday += total;
+        }
+        if (o.createdAt >= startOfMonth) {
+          revenueThisMonth += total;
+        }
       }
     });
 
@@ -55,12 +59,13 @@ export async function GET(req: NextRequest) {
       success: true,
       data: {
         totalCustomers,
-        activeProduction,
-        readyForPickup,
-        completedOrders,
-        totalRevenue,
-        dailyRevenue,      // Now matches your frontend
-        pendingPayments,   // Now matches your frontend
+        totalOrders,
+        pendingOrders,
+        ordersInProgress,
+        readyOrders,
+        deliveredOrders,
+        revenueToday,
+        revenueThisMonth,
         lowStockAlerts
       }
     }, { status: 200 });

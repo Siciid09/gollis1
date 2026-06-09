@@ -213,7 +213,13 @@ export default function ReportsPage() {
             { title: "New Clients", value: "124", icon: Users, trend: "+2.1%", isPositive: true, color: "text-cyan-400", bg: "bg-cyan-500/10 border-cyan-500/20" },
             { title: "Avg. Turnaround", value: "4.2 Days", icon: Calendar, trend: "-0.5 Days", isPositive: true, color: "text-amber-400", bg: "bg-amber-500/10 border-amber-500/20" },
           ].map((stat, i) => (
-            <div key={i} className="p-5 rounded-2xl bg-neutral-900/40 backdrop-blur-xl border border-white/5 hover:border-white/10 transition-colors shadow-lg">
+            <div key={i} className={`p-5 rounded-2xl backdrop-blur-xl border transition-all hover:scale-[1.02] shadow-xl relative overflow-hidden ${
+              i === 0 ? "bg-gradient-to-br from-emerald-600/20 to-teal-700/5 border-emerald-500/30" : 
+              i === 1 ? "bg-gradient-to-br from-indigo-600/20 to-blue-700/5 border-indigo-500/30" : 
+              i === 2 ? "bg-gradient-to-br from-cyan-600/20 to-blue-500/5 border-cyan-500/30" : 
+              "bg-gradient-to-br from-amber-500/20 to-orange-600/5 border-amber-500/30"
+            }`}>
+              <div className="absolute -bottom-6 -right-6 w-32 h-32 bg-white opacity-5 rotate-45 rounded-3xl pointer-events-none" />
               <div className="flex items-center justify-between mb-4">
                 <span className="text-xs font-bold uppercase tracking-wider text-neutral-500">{stat.title}</span>
                 <div className={`p-2 rounded-lg border ${stat.bg} ${stat.color}`}>
@@ -349,49 +355,55 @@ export default function ReportsPage() {
             </div>
           </div>
 
-          {/* Employee Efficiency Matrix */}
-          <div className="rounded-2xl bg-neutral-900/40 backdrop-blur-xl border border-white/5 shadow-xl overflow-hidden flex flex-col">
-            <div className="p-5 border-b border-white/5 flex justify-between items-center bg-neutral-950/30">
-              <div className="flex items-center gap-2">
-                <Users className="text-cyan-400" size={16} />
-                <h3 className="text-md font-bold text-white">Labor Efficiency Matrix</h3>
+          {/* Financial Breakdown & Low Stock (Replaces out-of-scope HR Module) */}
+          <div className="flex flex-col gap-6">
+            
+            {/* Financial Overview (Income - Expenses = Profit) */}
+            <div className="rounded-2xl bg-neutral-900/40 backdrop-blur-xl border border-white/5 shadow-xl overflow-hidden p-6 relative">
+              <h3 className="text-md font-bold text-white mb-5 flex items-center gap-2">
+                <DollarSign className="text-emerald-400" size={16}/> Financial Overview
+              </h3>
+              <div className="flex flex-col gap-3 relative z-10">
+                <div className="flex justify-between items-center p-4 bg-gradient-to-r from-emerald-500/10 to-transparent border border-emerald-500/20 rounded-xl">
+                  <span className="text-emerald-400 font-bold uppercase tracking-wider text-[10px]">Net Profit</span>
+                  <span className="text-xl font-black text-white">$23,450</span> {/* TODO: Wire to state (totalIncome - totalExpenses) */}
+                </div>
+                <div className="flex justify-between items-center p-3 bg-white/[0.02] border border-white/5 rounded-xl">
+                  <span className="text-neutral-400 font-medium text-xs">Gross Income</span>
+                  <span className="text-sm font-bold text-white">$34,900</span> {/* TODO: Wire to state */}
+                </div>
+                <div className="flex justify-between items-center p-3 bg-white/[0.02] border border-white/5 rounded-xl">
+                  <span className="text-neutral-400 font-medium text-xs">Total Expenses</span>
+                  <span className="text-sm font-bold text-rose-400">$11,450</span> {/* TODO: Wire to state */}
+                </div>
               </div>
             </div>
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm text-left">
-                <thead className="text-[10px] text-neutral-500 uppercase bg-neutral-950/60 tracking-wider">
-                  <tr>
-                    <th className="px-5 py-3 font-bold">Employee</th>
-                    <th className="px-5 py-3 font-bold">Output</th>
-                    <th className="px-5 py-3 font-bold text-right">Revenue Generated</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-white/5">
-                  {isLoading ? (
-                    <tr><td colSpan={3} className="px-5 py-8 text-center text-neutral-500"><Loader2 className="animate-spin inline mr-2"/> Compiling data...</td></tr>
-                  ) : (
-                    employeePerformance.map((emp) => (
-                      <tr key={emp.id} className="hover:bg-white/[0.02] transition-colors">
-                        <td className="px-5 py-4">
-                          <div className="flex flex-col">
-                            <span className="font-bold text-white">{emp.name}</span>
-                            <span className="text-[10px] uppercase tracking-wider text-neutral-500">{emp.role}</span>
-                          </div>
-                        </td>
-                        <td className="px-5 py-4">
-                           <span className="text-neutral-300 font-mono">{emp.itemsCompleted} <span className="font-sans text-[10px] text-neutral-500">garments</span></span>
-                        </td>
-                        <td className="px-5 py-4 text-right">
-                          <span className="font-mono font-bold text-indigo-400">
-                            ${emp.revenueGenerated.toLocaleString()}
-                          </span>
-                        </td>
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
+
+            {/* Low Stock Alerts (Inventory Requirement) */}
+            <div className="rounded-2xl bg-neutral-900/40 backdrop-blur-xl border border-white/5 shadow-xl overflow-hidden flex-1 flex flex-col">
+              <div className="p-5 border-b border-white/5 flex justify-between items-center bg-neutral-950/30">
+                <div className="flex items-center gap-2">
+                  <ShieldAlert className="text-amber-400" size={16} />
+                  <h3 className="text-md font-bold text-white">Low Stock Alerts</h3>
+                </div>
+                <span className="bg-amber-500/10 text-amber-400 px-2 py-0.5 rounded text-[9px] font-bold uppercase border border-amber-500/20">Action Required</span>
+              </div>
+              <div className="overflow-x-auto p-2">
+                {/* TODO: Replace static array with lowStockItems mapped from API/State */}
+                {[
+                  { id: "1", name: "Premium Cotton Black", qty: 2, unit: "Rolls" },
+                  { id: "2", name: "Gold Zippers 5mm", qty: 0, unit: "Boxes" }
+                ].map((item, idx) => (
+                  <div key={idx} className="flex justify-between items-center p-3 hover:bg-white/[0.02] rounded-lg transition-colors border-b border-white/5 last:border-0">
+                    <span className="text-sm font-medium text-white">{item.name}</span>
+                    <span className={`font-mono text-xs font-bold ${item.qty === 0 ? 'text-rose-400' : 'text-amber-400'}`}>
+                      {item.qty} {item.unit}
+                    </span>
+                  </div>
+                ))}
+              </div>
             </div>
+
           </div>
         </div>
       </div>

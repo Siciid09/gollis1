@@ -7,7 +7,7 @@ import {
   Tag, User, Layers, Loader2, Search, CheckCircle2
 } from "lucide-react";
 
-type OrderStatus = "Pending" | "Measuring" | "Cutting" | "Sewing" | "Fitting" | "Finishing" | "Ready" | "Delivered" | "Cancelled";
+type OrderStatus = "Pending" | "Cutting" | "Stitching" | "Finishing" | "Ready" | "Delivered";
 
 export interface OrderData {
   id?: string;
@@ -15,6 +15,7 @@ export interface OrderData {
   customerName?: string; 
   physicalTag: string;   
   garmentType: string;
+  quantity: number | string;
   fabric: string;
   deliveryDate: string;
   status: OrderStatus;
@@ -34,7 +35,7 @@ interface OrderFormProps {
   onCancel: () => void;
 }
 
-const statuses: OrderStatus[] = ["Pending", "Measuring", "Cutting", "Sewing", "Fitting", "Finishing", "Ready", "Delivered", "Cancelled"];
+const statuses: OrderStatus[] = ["Pending", "Cutting", "Stitching", "Finishing", "Ready", "Delivered"];
 
 export default function OrderForm({ initialData, onSubmit, onCancel }: OrderFormProps) {
   const isEditing = !!initialData;
@@ -45,6 +46,7 @@ export default function OrderForm({ initialData, onSubmit, onCancel }: OrderForm
       customerName: "", 
       physicalTag: "", // Will auto-fill below
       garmentType: "Custom Suit", 
+      quantity: 1, 
       fabric: "", 
       deliveryDate: "", 
       status: "Pending", 
@@ -253,6 +255,14 @@ export default function OrderForm({ initialData, onSubmit, onCancel }: OrderForm
           <div className="relative group mt-2">
             <Layers className="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-500 group-focus-within:text-indigo-400 transition-colors" size={18} />
             <input type="text" required value={data.garmentType} onChange={(e) => setData({...data, garmentType: e.target.value})} className="w-full bg-neutral-950 border border-neutral-800 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 rounded-xl py-3 pl-12 pr-4 text-white text-sm outline-none transition-all" placeholder="e.g. 3-Piece Suit" />
+          </div>
+        </div>
+
+        <div className="space-y-2">
+          <label className="text-[10px] font-bold text-neutral-400 uppercase tracking-wider">Quantity</label>
+          <div className="relative group mt-2">
+            <div className="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-500 group-focus-within:text-indigo-400 transition-colors text-sm font-bold">#</div>
+            <input type="number" min="1" required value={data.quantity} onChange={(e) => setData({...data, quantity: e.target.value})} className="w-full bg-neutral-950 border border-neutral-800 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 rounded-xl py-3 pl-12 pr-4 text-white text-sm outline-none transition-all" placeholder="1" />
           </div>
         </div>
 

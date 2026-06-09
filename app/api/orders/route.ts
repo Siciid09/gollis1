@@ -26,10 +26,14 @@ export async function POST(req: NextRequest) {
     const total = Number(body.totalAmount) || 0;
     const deposit = Number(body.depositPaid) || 0;
 
+    // Generate a short, readable ID for the physical plastic bag tag
+    const physicalTag = `TAG-${Math.floor(1000 + Math.random() * 9000)}`;
+
     const newOrder = {
       ...orderData,
       customerId,
       status: "Pending",
+      physicalTag, // Automatically inject the physical tag
       totalAmount: total,
       depositPaid: deposit,
       balance: total - deposit,
@@ -37,6 +41,20 @@ export async function POST(req: NextRequest) {
     };
     
     batch.set(orderRef, newOrder);
+
+    // --- FINANCE MODULE INTEGRATION ---
+    // If the customer pays a deposit upfront, automatically log it as Income
+    if (deposit > 0) {
+      const incomeRef = db.collection("income").doc();
+      batch.set(incomeRef, {
+        amount: deposit,
+        source: "Tailoring Orders",
+        description: `Upfront deposit for Order ${physicalTag}`,
+        orderId: orderRef.id,
+        customerId: customerId || "Walk-in",
+        date: new Date().toISOString()
+      });
+    }
 
     // 2. Increment the customer's totalOrders count
     if (customerId) {

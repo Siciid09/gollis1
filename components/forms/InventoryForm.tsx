@@ -9,7 +9,7 @@ import {
 } from "lucide-react";
 
 // --- TypeScript Interfaces ---
-export type CategoryType = "Fabric" | "Thread" | "Accessories" | "Hardware";
+export type CategoryType = "Fabric" | "Thread" | "Buttons" | "Zippers" | "Accessories";
 
 export interface InventoryItemData {
   id?: string;
@@ -94,7 +94,7 @@ export default function InventoryForm({ initialData, onSubmit, onCancel }: Inven
 
     if (newCategory === "Fabric") newUnit = "meters";
     if (newCategory === "Thread") newUnit = "spools";
-    if (newCategory === "Accessories" || newCategory === "Hardware") newUnit = "pieces";
+    if (newCategory === "Buttons" || newCategory === "Zippers" || newCategory === "Accessories") newUnit = "pieces";
 
     setFormData({ 
       ...formData, 
@@ -192,8 +192,9 @@ export default function InventoryForm({ initialData, onSubmit, onCancel }: Inven
             >
               <option value="Fabric">Fabric / Textiles</option>
               <option value="Thread">Thread / Stitching</option>
-              <option value="Accessories">Accessories (Buttons/Zips)</option>
-              <option value="Hardware">Hardware / Tools</option>
+              <option value="Buttons">Buttons</option>
+              <option value="Zippers">Zippers</option>
+              <option value="Accessories">General Accessories</option>
             </select>
             <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-neutral-500">▼</div>
           </div>
