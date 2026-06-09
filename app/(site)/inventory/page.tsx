@@ -13,7 +13,7 @@ import {
 import InventoryForm, { InventoryItemData } from "./../../../components/forms/InventoryForm"; // Adjust import path if needed
 
 // --- TypeScript Interfaces ---
-export type CategoryType = "Fabric" | "Thread" | "Accessories" | "Hardware";
+export type CategoryType = "Fabric" | "Thread" | "Buttons" | "Zippers" | "Accessories";
 
 interface InventoryLog {
   id: string;
@@ -135,20 +135,33 @@ export default function InventoryPage() {
     setActiveMenuId(null);
   };
 
-  const handleDelete = async (id: string) => {
-    if(confirm("Are you sure you want to remove this item from the warehouse matrix?")) {
-      // 1. Hide from screen instantly
-      setInventory(inventory.filter(i => i.id !== id));
-      setActiveMenuId(null);
-      
-      // 2. Erase from Firebase permanently
-      try {
-        await fetch(`/api/inventory/adjust${id}`, { method: 'DELETE' });
-      } catch (error) {
-        console.error("Failed to delete item from DB", error);
-      }
-    }
-  };
+  {/* --- KPI Stats Matrix (Warehouse Themed Gradients) --- */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {[
+            { title: "Capital in Stock", value: `$${totalValue.toLocaleString()}`, icon: <DollarSign size={20} className="text-teal-100" />, trend: "Total Valuation", bg: "bg-gradient-to-br from-teal-600 to-emerald-700 border-teal-500/30" },
+            { title: "Total Unique SKUs", value: inventory.length.toString(), icon: <Layers size={20} className="text-blue-100" />, trend: "Active Items", bg: "bg-gradient-to-br from-blue-700 to-indigo-800 border-blue-500/30" },
+            { title: "Low Stock Vectors", value: lowStockItems.length.toString(), icon: <TrendingDown size={20} className="text-orange-100" />, trend: "Requires Attention", bg: "bg-gradient-to-br from-orange-500 to-amber-600 border-orange-500/30" },
+            { title: "Critical Depletion", value: criticalStockItems.length.toString(), icon: <AlertTriangle size={20} className="text-red-100" />, trend: "Zero Stock Remaining", bg: "bg-gradient-to-br from-red-600 to-rose-700 border-red-500/30" },
+          ].map((stat, i) => (
+            <div key={i} className={`p-5 rounded-2xl ${stat.bg} border shadow-xl relative overflow-hidden transition-all hover:scale-[1.02]`}>
+              {/* Unique geometric flare for the Inventory page */}
+              <div className="absolute -bottom-6 -right-6 w-32 h-32 bg-white opacity-5 rotate-45 rounded-3xl pointer-events-none" />
+              
+              <div className="flex items-center justify-between mb-4 relative z-10">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-white/80 drop-shadow-sm">{stat.title}</span>
+                <div className="p-2 bg-black/20 rounded-lg backdrop-blur-md border border-white/10">
+                  {stat.icon}
+                </div>
+              </div>
+              <div className="flex items-baseline gap-1 relative z-10">
+                <h2 className="text-3xl font-black text-white drop-shadow-md">
+                   {isLoading ? <div className="h-8 w-16 bg-white/20 animate-pulse rounded-lg" /> : stat.value}
+                </h2>
+              </div>
+              <p className="text-[10px] mt-2 font-bold text-white/70 tracking-wide relative z-10">{stat.trend}</p>
+            </div>
+          ))}
+        </div>
 
   // NEW: Print Handler for the QR Label
   const handlePrintQR = () => {
@@ -200,14 +213,16 @@ export default function InventoryPage() {
 
   // --- Utility Components ---
   const CategoryBadge = ({ category }: { category: CategoryType }) => {
-    const styles = {
+    const styles: Record<CategoryType, string> = {
       Fabric: "bg-indigo-500/10 text-indigo-400 border-indigo-500/20",
       Thread: "bg-cyan-500/10 text-cyan-400 border-cyan-500/20",
-      Accessories: "bg-purple-500/10 text-purple-400 border-purple-500/20",
+      Buttons: "bg-fuchsia-500/10 text-fuchsia-400 border-fuchsia-500/20",
+      Zippers: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
+      Accessories: "bg-purple-500/10 text-purple-500/20 border-purple-500/20",
       Hardware: "bg-amber-500/10 text-amber-400 border-amber-500/20",
     };
     return (
-      <span className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider border ${styles[category] || styles.Fabric}`}>
+      <span className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider border ${styles[category]}`}>
         {category}
       </span>
     );
@@ -269,7 +284,7 @@ export default function InventoryPage() {
         {/* --- Toolbar --- */}
         <div className="flex flex-col md:flex-row items-center justify-between gap-4 bg-neutral-900/40 backdrop-blur-md p-2 rounded-2xl border border-white/5">
           <div className="flex items-center gap-2 overflow-x-auto w-full md:w-auto no-scrollbar pb-2 md:pb-0 pl-1">
-            {["All", "Fabric", "Thread", "Accessories", "Hardware"].map((cat) => (
+            {["All", "Fabric", "Thread", "Buttons", "Zippers", "Accessories"].map((cat) => (
               <button
                 key={cat}
                 onClick={() => setActiveCategory(cat as any)}
@@ -312,6 +327,10 @@ export default function InventoryPage() {
                     const threshold = Number(item.alertThreshold);
                     const isLowStock = quantity <= threshold && quantity > 0;
                     const isCritical = quantity === 0;
+
+                    function handleDelete(id: string): void {
+                      throw new Error("Function not implemented.");
+                    }
 
                     return (
                       <tr key={item.id} className={`hover:bg-white/[0.02] transition-colors group ${isLowStock ? 'bg-amber-500/[0.02]' : isCritical ? 'bg-rose-500/[0.02]' : ''}`}>

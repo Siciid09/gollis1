@@ -191,7 +191,7 @@ export default function Sidebar() {
             {/* Always show text on mobile, respect collapse state on desktop */}
             {(!isCollapsed || isMobileOpen) && (
               <div className="flex flex-col truncate transition-opacity duration-300">
-                <span className="text-lg font-black text-white tracking-tight">TailorOS</span>
+                <span className="text-lg font-black text-white tracking-tight">Yoonis Tailor</span>
                 <span className="text-[10px] text-indigo-400 font-mono font-bold uppercase tracking-widest">System Matrix</span>
               </div>
             )}
