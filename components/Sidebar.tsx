@@ -172,7 +172,7 @@ const menuItems: MenuItem[] = [
       { name: "Customer Reports", icon: Users, href: "/reports/customers" },
       { name: "Order Reports", icon: Scissors, href: "/reports/orders" },
       { name: "Inventory Reports", icon: Box, href: "/reports/inventory" },
-      { name: "Financial Reports", icon: Briefcase, href: "/reports" },
+      { name: "Financial Reports", icon: Briefcase, href: "reports/finance" },
     ],
     theme: {
       text: "text-fuchsia-300",
@@ -312,7 +312,7 @@ export default function Sidebar() {
                 className="flex flex-col truncate"
               >
                 <span className="text-xl font-black text-white tracking-tight uppercase">Yoonis Tailor</span>
-                <span className="text-[10px] text-amber-500 font-mono font-bold uppercase tracking-widest">System Matrix</span>
+                <span className="text-[10px] text-amber-500 font-mono font-bold uppercase tracking-widest">Management System </span>
               </motion.div>
             )}
           </div>
