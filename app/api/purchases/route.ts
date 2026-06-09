@@ -1,19 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/firebase-admin";
 
-// GET ALL MEASUREMENTS
+// GET ALL PURCHASES
 export async function GET() {
   try {
-    const snapshot = await db.collection("measurements").orderBy("measurementDate", "desc").get();
-    const measurements = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    const snapshot = await db.collection("purchases").orderBy("date", "desc").get();
+    const purchases = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
     
-    return NextResponse.json({ success: true, data: measurements });
+    return NextResponse.json({ success: true, data: purchases });
   } catch (error: any) {
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
 }
 
-// CREATE NEW MEASUREMENT
+// CREATE NEW PURCHASE
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
@@ -23,7 +23,7 @@ export async function POST(req: NextRequest) {
       createdAt: new Date().toISOString()
     };
 
-    const docRef = await db.collection("measurements").add(newRecord);
+    const docRef = await db.collection("purchases").add(newRecord);
     
     return NextResponse.json({ 
       success: true, 
@@ -34,40 +34,40 @@ export async function POST(req: NextRequest) {
   }
 }
 
-// UPDATE MEASUREMENT (Using ID in body)
+// UPDATE PURCHASE
 export async function PATCH(req: NextRequest) {
   try {
     const body = await req.json();
     const { id, ...updateData } = body;
 
     if (!id) {
-      return NextResponse.json({ success: false, error: "Missing ID" }, { status: 400 });
+      return NextResponse.json({ success: false, error: "Missing Purchase ID" }, { status: 400 });
     }
 
-    await db.collection("measurements").doc(id).update({
+    await db.collection("purchases").doc(id).update({
       ...updateData,
       updatedAt: new Date().toISOString()
     });
     
-    return NextResponse.json({ success: true, message: "Measurement updated successfully" });
+    return NextResponse.json({ success: true, message: "Purchase updated successfully" });
   } catch (error: any) {
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
 }
 
-// DELETE MEASUREMENT (Using ID from URL search params)
+// DELETE PURCHASE
 export async function DELETE(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
     const id = searchParams.get('id');
 
     if (!id) {
-      return NextResponse.json({ success: false, error: "Missing ID" }, { status: 400 });
+      return NextResponse.json({ success: false, error: "Missing Purchase ID" }, { status: 400 });
     }
 
-    await db.collection("measurements").doc(id).delete();
+    await db.collection("purchases").doc(id).delete();
     
-    return NextResponse.json({ success: true, message: "Measurement deleted" });
+    return NextResponse.json({ success: true, message: "Purchase deleted" });
   } catch (error: any) {
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
