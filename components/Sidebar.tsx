@@ -300,12 +300,12 @@ export default function Sidebar() {
         </button>
 
         {/* Light/Dark Mode Toggle */}
-        <div className={cn("absolute top-6 z-50", isCollapsed && !isMobileOpen ? "right-2" : "right-14")}>
+        <div className={cn("absolute top-32 right-4 z-[60]")}>
           <ThemeToggle />
         </div>
 
         {/* Light/Dark Mode Toggle */}
-        <div className={cn("absolute top-6 z-50", isCollapsed && !isMobileOpen ? "right-2" : "right-14")}>
+        <div className={cn("absolute top-32 right-4 z-[60]")}>
           <ThemeToggle />
         </div>
 
