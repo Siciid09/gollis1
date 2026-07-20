@@ -12,12 +12,8 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
+html { color-scheme: light; }
+[data-theme="dark"] { color-scheme: dark; }
 
 body {
   background: var(--background);
@@ -26,13 +22,40 @@ body {
 }
 
 /* --- CUSTOM UTILITIES --- */
-/* Hide scrollbar for Chrome, Safari and Opera */
-.no-scrollbar::-webkit-scrollbar {
-  display: none;
-}
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-/* Hide scrollbar for IE, Edge and Firefox */
-.no-scrollbar {
-  -ms-overflow-style: none;  /* IE and Edge */
-  scrollbar-width: none;  /* Firefox */
-}
+/* ============================================
+   LIGHT MODE OVERRIDES (default = light)
+   Dark mode = original design, unlocked by data-theme="dark"
+   ============================================ */
+
+/* --- Page-level backgrounds/text (appointments, catalog, employees, reports) --- */
+[data-theme="light"] .bg-\[\#050505\] { background:#f8f8f8 !important; }
+[data-theme="light"] .text-neutral-200 { color:#171717 !important; }
+[data-theme="light"] .text-white { color:#0a0a0a !important; }
+[data-theme="light"] .text-neutral-300 { color:#404040 !important; }
+[data-theme="light"] .text-neutral-400 { color:#525252 !important; }
+[data-theme="light"] .text-neutral-500 { color:#737373 !important; }
+[data-theme="light"] .bg-neutral-900\/40 { background:rgba(0,0,0,0.03) !important; border-color:rgba(0,0,0,0.08) !important; }
+[data-theme="light"] .bg-neutral-900\/60 { background:rgba(0,0,0,0.03) !important; border-color:rgba(0,0,0,0.08) !important; }
+[data-theme="light"] .bg-neutral-950 { background:#f0f0f0 !important; }
+[data-theme="light"] .bg-neutral-900 { background:#ffffff !important; }
+[data-theme="light"] .bg-neutral-800 { background:#e5e5e5 !important; color:#171717 !important; }
+[data-theme="light"] .border-neutral-800 { border-color:#d4d4d4 !important; }
+[data-theme="light"] .border-neutral-700 { border-color:#c7c7c7 !important; }
+[data-theme="light"] .border-white\/5 { border-color:rgba(0,0,0,0.08) !important; }
+[data-theme="light"] .border-white\/10 { border-color:rgba(0,0,0,0.1) !important; }
+[data-theme="light"] .divide-white\/5 > * + * { border-color:rgba(0,0,0,0.08) !important; }
+[data-theme="light"] .hover\:bg-white\/5:hover { background:rgba(0,0,0,0.04) !important; }
+[data-theme="light"] .hover\:bg-neutral-700:hover { background:#d4d4d4 !important; }
+[data-theme="light"] table thead { background:#f0f0f0 !important; }
+
+/* --- Sidebar-specific --- */
+[data-theme="light"] .bg-neutral-950\/90 { background:rgba(255,255,255,0.9) !important; border-color:rgba(0,0,0,0.08) !important; }
+[data-theme="light"] .bg-neutral-900\/80 { background:rgba(255,255,255,0.85) !important; border-color:rgba(0,0,0,0.08) !important; }
+[data-theme="light"] .bg-neutral-900\/90 { background:rgba(255,255,255,0.9) !important; }
+[data-theme="light"] .text-neutral-400 { color:#525252 !important; }
+[data-theme="light"] .from-neutral-800 { --tw-gradient-from:#e5e5e5 !important; }
+[data-theme="light"] .to-neutral-700 { --tw-gradient-to:#d4d4d4 !important; }
+[data-theme="light"] .shadow-\[10px_0_40px_rgba\(0\,0\,0\,0\.5\)\] { box-shadow: 10px 0 40px rgba(0,0,0,0.08) !important; }

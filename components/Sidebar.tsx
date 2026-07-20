@@ -37,6 +37,7 @@ import {
 } from "lucide-react";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
+import ThemeToggle from "@/components/ThemeToggle";
 
 // --- Firebase Imports ---
 import { onAuthStateChanged, signOut, User } from "firebase/auth";
@@ -297,6 +298,16 @@ export default function Sidebar() {
         >
           {isCollapsed ? <ChevronRight size={14} className="ml-0.5" /> : <ChevronLeft size={14} className="mr-0.5" />}
         </button>
+
+        {/* Light/Dark Mode Toggle */}
+        <div className={cn("absolute top-6 z-50", isCollapsed && !isMobileOpen ? "right-2" : "right-14")}>
+          <ThemeToggle />
+        </div>
+
+        {/* Light/Dark Mode Toggle */}
+        <div className={cn("absolute top-6 z-50", isCollapsed && !isMobileOpen ? "right-2" : "right-14")}>
+          <ThemeToggle />
+        </div>
 
         {/* Brand Header */}
         <div className="flex items-center justify-center h-28 border-b border-white/5">
