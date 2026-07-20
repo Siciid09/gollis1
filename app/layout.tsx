@@ -15,7 +15,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark scroll-smooth">
+    <html lang="en" className="scroll-smooth" suppressHydrationWarning>
       {/* No Sidebar here! 
         This allows your public landing page (app/page.tsx) to take up the full screen.
       */}

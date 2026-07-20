@@ -299,16 +299,6 @@ export default function Sidebar() {
           {isCollapsed ? <ChevronRight size={14} className="ml-0.5" /> : <ChevronLeft size={14} className="mr-0.5" />}
         </button>
 
-        {/* Light/Dark Mode Toggle */}
-        <div className={cn("absolute top-32 right-4 z-[60]")}>
-          <ThemeToggle />
-        </div>
-
-        {/* Light/Dark Mode Toggle */}
-        <div className={cn("absolute top-32 right-4 z-[60]")}>
-          <ThemeToggle />
-        </div>
-
         {/* Brand Header */}
         <div className="flex items-center justify-center h-28 border-b border-white/5">
           <div className="flex items-center gap-4 px-6 w-full">
@@ -441,13 +431,21 @@ export default function Sidebar() {
 
         {/* Bottom Section */}
         <div className="border-t border-white/5 p-5 flex flex-col gap-3 bg-gradient-to-b from-transparent to-black/40">
-          <Link
-            href="/settings"
-            className="flex items-center gap-3 px-4 py-3.5 rounded-2xl text-neutral-400 hover:bg-white/5 hover:text-white hover:shadow-lg hover:-translate-y-1 hover:scale-[1.02] transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] group border border-transparent hover:border-white/10"
-          >
-            <Settings size={22} className="shrink-0 group-hover:rotate-90 transition-transform duration-700 text-neutral-500 group-hover:text-white" />
-            {(!isCollapsed || isMobileOpen) && <span className="text-sm font-black tracking-wide">System Settings</span>}
-          </Link>
+          
+          {/* Settings & Theme Toggle Row grouped beautifully */}
+          <div className={cn("flex gap-2", isCollapsed && !isMobileOpen ? "flex-col items-center" : "flex-row items-center")}>
+            <Link
+              href="/settings"
+              className="flex-1 flex items-center justify-center md:justify-start gap-3 px-4 py-3.5 rounded-2xl text-neutral-400 hover:bg-white/5 hover:text-white hover:shadow-lg hover:-translate-y-1 hover:scale-[1.02] transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] group border border-transparent hover:border-white/10"
+            >
+              <Settings size={22} className="shrink-0 group-hover:rotate-90 transition-transform duration-700 text-neutral-500 group-hover:text-white" />
+              {(!isCollapsed || isMobileOpen) && <span className="text-sm font-black tracking-wide truncate">System Settings</span>}
+            </Link>
+
+            <div className="shrink-0">
+              <ThemeToggle />
+            </div>
+          </div>
           
           <div className="mt-2 flex items-center justify-between rounded-2xl bg-neutral-900/60 backdrop-blur-md p-3 border border-white/5 hover:border-white/10 hover:shadow-xl transition-all duration-300 group">
             {isAuthLoading ? (

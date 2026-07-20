@@ -23,9 +23,9 @@ export default function ThemeToggle() {
       type="button"
       onClick={toggle}
       title="Toggle light / dark mode"
-      className="flex items-center justify-center h-9 w-9 rounded-xl border border-neutral-800 bg-neutral-900/40 hover:bg-neutral-800 text-neutral-300 hover:text-white transition-all shrink-0 cursor-pointer"
+      className="flex items-center justify-center h-11 w-11 rounded-2xl border border-neutral-800 bg-neutral-900/40 hover:bg-neutral-800 text-neutral-300 hover:text-white transition-all shrink-0 cursor-pointer"
     >
-      {theme === "light" ? <Moon size={16} /> : <Sun size={16} />}
+      {theme === "light" ? <Moon size={18} /> : <Sun size={18} />}
     </button>
   );
 }

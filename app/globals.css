@@ -33,7 +33,7 @@ body {
 /* --- Page-level backgrounds/text (appointments, catalog, employees, reports) --- */
 [data-theme="light"] .bg-\[\#050505\] { background:#f8f8f8 !important; }
 [data-theme="light"] .text-neutral-200 { color:#171717 !important; }
-[data-theme="light"] .text-white { color:#0a0a0a !important; }
+/* The broken text-white override was removed from here so your active icons stay white! */
 [data-theme="light"] .text-neutral-300 { color:#404040 !important; }
 [data-theme="light"] .text-neutral-400 { color:#525252 !important; }
 [data-theme="light"] .text-neutral-500 { color:#737373 !important; }
