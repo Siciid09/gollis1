@@ -173,8 +173,9 @@ const menuItems: MenuItem[] = [
       { name: "Customer Reports", icon: Users, href: "/reports/customers" },
       { name: "Order Reports", icon: Scissors, href: "/reports/orders" },
       { name: "Inventory Reports", icon: Box, href: "/reports/inventory" },
-      { name: "Financial Reports", icon: Briefcase, href: "reports/finance" },
+      { name: "Financial Reports", icon: Briefcase, href: "/reports/finance" },
     ],
+  
     theme: {
       text: "text-fuchsia-300",
       bgDefault: "bg-gradient-to-r from-fuchsia-500/20 to-pink-500/10",
