@@ -7,12 +7,13 @@ import {
   Smartphone, Globe, CreditCard, Lock, Printer, 
   MessageSquare, Loader2, CheckCircle2
 } from "lucide-react";
-import UsersPage from "@/components/forms/UsersPage.tsx";
+import UsersPage from "@/components/forms/UsersPage";
 
-// --- IMPORT YOUR NEW USERS PAGE COMPONENT ---
-// Adjust this path based on your folder structure (e.g., "@/app/users/page" or "./UsersPage")
-//import UsersPage from "../users/page"; 
-"../../../components/forms/UsersPage.tsx"; "../../../components/forms/UsersPage.tsx"; 
+// --- Firebase Imports ---
+import { auth, db } from "@/lib/firebase";
+import { onAuthStateChanged } from "firebase/auth";
+import { doc, getDoc, updateDoc } from "firebase/firestore";
+
 type TabOption = "profile" | "business" | "notifications" | "team";
 
 export default function SettingsPage() {
@@ -21,12 +22,16 @@ export default function SettingsPage() {
   const [showSuccess, setShowSuccess] = useState(false);
   const [isLoadingSettings, setIsLoadingSettings] = useState(true);
 
-  // --- 100% Dynamic State (No Fake Data) ---
+  // Track the actual Firebase User ID and Role
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  const [currentUserRole, setCurrentUserRole] = useState<string>("Staff");
+
+  // --- Real Profile State ---
   const [profile, setProfile] = useState({
     fullName: "",
     email: "",
     phone: "",
-    role: "Admin/Owner" 
+    role: "Staff" 
   });
 
   const [business, setBusiness] = useState({
@@ -47,34 +52,62 @@ export default function SettingsPage() {
     dailySummary: false,
   });
 
-  // --- Fetch Actual Database Settings ---
   useEffect(() => {
-    const fetchSettings = async () => {
-      try {
-        const res = await fetch('/api/settings');
-        const json = await res.json();
-        if (json.success && json.data) {
-          if (json.data.profile) setProfile(json.data.profile);
-          if (json.data.business) setBusiness(json.data.business);
-          if (json.data.notifications) setNotifications(json.data.notifications);
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        setCurrentUserId(user.uid);
+        
+        try {
+          // 1. Fetch Real User Profile from Firestore
+          const userDoc = await getDoc(doc(db, "users", user.uid));
+          if (userDoc.exists()) {
+            const userData = userDoc.data();
+            setCurrentUserRole(userData.role || "Staff");
+            setProfile({
+              fullName: userData.name || "",
+              email: userData.email || user.email || "",
+              phone: userData.phone || "",
+              role: userData.role || "Staff"
+            });
+          }
+
+          // 2. Fetch Global Business/Notification Settings via API
+          const res = await fetch('/api/settings');
+          const json = await res.json();
+          if (json.success && json.data) {
+            if (json.data.business) setBusiness(json.data.business);
+            if (json.data.notifications) setNotifications(json.data.notifications);
+          }
+        } catch (error) {
+          console.error("Failed to load settings:", error);
+        } finally {
+          setIsLoadingSettings(false);
         }
-      } catch (error) {
-        console.error("Failed to load system settings:", error);
-      } finally {
+      } else {
         setIsLoadingSettings(false);
       }
-    };
-    fetchSettings();
+    });
+
+    return () => unsubscribe();
   }, []);
 
   // --- Handlers ---
   const handleSave = async () => {
     setIsSaving(true);
     try {
+      // 1. Save Profile Data directly to Firestore `users` collection
+      if (currentUserId) {
+        await updateDoc(doc(db, "users", currentUserId), {
+          name: profile.fullName,
+          phone: profile.phone,
+        });
+      }
+
+      // 2. Save Business & Notifications to Global API
       const res = await fetch('/api/settings', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ profile, business, notifications })
+        body: JSON.stringify({ business, notifications })
       });
       
       if (res.ok) {
@@ -140,8 +173,10 @@ export default function SettingsPage() {
             </AnimatePresence>
             <button 
               onClick={handleSave}
-              disabled={isSaving}
-              className="bg-white hover:bg-neutral-200 text-black px-8 py-3 rounded-xl text-sm font-bold transition-all shadow-lg active:scale-95 flex items-center justify-center gap-2 disabled:opacity-70"
+              disabled={isSaving || activeTab === "team"}
+              className={`px-8 py-3 rounded-xl text-sm font-bold transition-all shadow-lg flex items-center justify-center gap-2 ${
+                activeTab === "team" ? "hidden" : "bg-white hover:bg-neutral-200 text-black active:scale-95 disabled:opacity-70"
+              }`}
             >
               {isSaving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />} 
               {isSaving ? "Syncing..." : "Save Configuration"}
@@ -157,7 +192,8 @@ export default function SettingsPage() {
               { id: "profile", label: "Admin Profile", icon: User },
               { id: "business", label: "Business Details", icon: Briefcase },
               { id: "notifications", label: "Alerts & Webhooks", icon: Bell },
-              { id: "team", label: "Access Control", icon: Users }, // Renamed for clarity
+              // ONLY render the Access Control tab if the logged-in user is an Admin
+              ...(currentUserRole === "Admin/Owner" ? [{ id: "team", label: "Access Control", icon: Users }] : []),
             ].map((tab) => (
               <button
                 key={tab.id}
@@ -406,7 +442,7 @@ export default function SettingsPage() {
                 )}
 
                 {/* === TEAM & ACCESS (Embedded Component) === */}
-                {activeTab === "team" && (
+                {activeTab === "team" && currentUserRole === "Admin/Owner/manager" && (
                   <motion.div 
                     key="team"
                     initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.2 }}
