@@ -1,23 +1,30 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
+import { motion, useScroll, useTransform, AnimatePresence, Variants } from "framer-motion";
 import Link from "next/link";
 import { 
   Scissors, Ruler, Crosshair, Star, ChevronRight, Play, 
   ArrowRight, ShieldCheck, CheckCircle2, Clock, MapPin, 
-  Quote, Instagram, Twitter, Linkedin, Menu, X 
+  Quote,  Menu, X 
 } from "lucide-react";
 
-// --- Shared Animation Variants ---
-const fadeUp = {
+// --- Shared Animation Variants (TypeScript Safe) ---
+const fadeUp: Variants = {
   hidden: { opacity: 0, y: 40 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: "easeOut" } }
+  visible: { 
+    opacity: 1, 
+    y: 0, 
+    transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] } 
+  }
 };
 
-const staggerContainer = {
+const staggerContainer: Variants = {
   hidden: { opacity: 0 },
-  visible: { opacity: 1, transition: { staggerChildren: 0.15 } }
+  visible: { 
+    opacity: 1, 
+    transition: { staggerChildren: 0.15 } 
+  }
 };
 
 export default function YoonisLandingPage() {
@@ -77,7 +84,7 @@ export default function YoonisLandingPage() {
         </motion.div>
 
         <div className="max-w-7xl mx-auto px-6 relative z-20 flex flex-col items-center text-center">
-          <motion.div initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 1, ease: "easeOut" }} className="mb-6">
+          <motion.div initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }} className="mb-6">
             <span className="px-4 py-1.5 rounded-full border border-amber-500/30 bg-amber-500/10 text-amber-400 text-[10px] font-black uppercase tracking-[0.3em]">
               The Pinnacle of Tailoring
             </span>
@@ -141,7 +148,7 @@ export default function YoonisLandingPage() {
       <section id="services" className="py-32 relative z-10">
         <div className="max-w-7xl mx-auto px-6">
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="text-center mb-20">
-            <h2 className="text-4xl font-black text-white uppercase tracking-tight">Mastery & <span className="text-amber-500">Services</span></h2>
+            <h2 className="text-4xl font-black text-white uppercase tracking-tight">Mastery &amp; <span className="text-amber-500">Services</span></h2>
             <p className="text-neutral-500 mt-4 max-w-2xl mx-auto">Elevating your wardrobe through comprehensive sartorial solutions.</p>
           </motion.div>
 
@@ -240,7 +247,7 @@ export default function YoonisLandingPage() {
         <div className="max-w-7xl mx-auto px-6 relative z-10">
           <div className="grid md:grid-cols-2 gap-12 items-center">
             <motion.div initial={{ opacity: 0, x: -50 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}>
-              <h2 className="text-3xl font-black text-white uppercase tracking-tight mb-4">Sourcing The <br/>World's <span className="text-amber-500">Finest Mills</span></h2>
+              <h2 className="text-3xl font-black text-white uppercase tracking-tight mb-4">Sourcing The <br/>World&apos;s <span className="text-amber-500">Finest Mills</span></h2>
               <p className="text-neutral-400 text-sm leading-relaxed">
                 A masterpiece requires a flawless canvas. We source exclusively from elite fabric mills across Biella, Italy, and Huddersfield, England. From Super 150s Merino Wool to Mongolian Cashmere, our library contains over 3,000 distinct swatches.
               </p>
@@ -291,7 +298,7 @@ export default function YoonisLandingPage() {
                 <div className="flex text-amber-500 mb-4">
                   {[...Array(5)].map((_, idx) => <Star key={idx} size={14} fill="currentColor" />)}
                 </div>
-                <p className="text-neutral-300 text-sm italic mb-6 leading-relaxed">"{t.text}"</p>
+                <p className="text-neutral-300 text-sm italic mb-6 leading-relaxed">&quot;{t.text}&quot;</p>
                 <div>
                   <p className="text-white font-bold">{t.name}</p>
                   <p className="text-[10px] text-amber-500 uppercase tracking-wider">{t.role}</p>
@@ -420,9 +427,7 @@ export default function YoonisLandingPage() {
                 <p className="text-neutral-400">concierge@yoonistailor.com</p>
                 <p className="text-neutral-400">+252 63 XXXXXXX</p>
                 <div className="flex gap-4 pt-2">
-                  <a href="#" className="text-neutral-400 hover:text-amber-500 transition-colors"><Instagram size={18} /></a>
-                  <a href="#" className="text-neutral-400 hover:text-amber-500 transition-colors"><Twitter size={18} /></a>
-                  <a href="#" className="text-neutral-400 hover:text-amber-500 transition-colors"><Linkedin size={18} /></a>
+                
                 </div>
               </div>
             </div>
