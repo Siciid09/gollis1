@@ -67,7 +67,7 @@ export default function DashboardPage() {
         const userDoc = await getDoc(doc(db, "users", user.uid));
         if (userDoc.exists()) {
           const role = userDoc.data().role?.toLowerCase();
-          if (role === "admin" || role === "manager") {
+          if (role === "admin" ||  role === "owner" || role === "manager") {
             setIsAuthorized(true);
           } else {
             setIsAuthorized(false);

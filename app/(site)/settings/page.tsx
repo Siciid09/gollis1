@@ -7,7 +7,7 @@ import {
   Smartphone, Globe, CreditCard, Lock, Printer, 
   MessageSquare, Loader2, CheckCircle2
 } from "lucide-react";
-import UsersPage from "@/components/forms/UsersPage";
+import Team from "@/components/team";
 
 // --- Firebase Imports ---
 import { auth, db } from "@/lib/firebase";
@@ -73,10 +73,12 @@ export default function SettingsPage() {
 
           // 2. Fetch Global Business/Notification Settings via API
           const res = await fetch('/api/settings');
-          const json = await res.json();
-          if (json.success && json.data) {
-            if (json.data.business) setBusiness(json.data.business);
-            if (json.data.notifications) setNotifications(json.data.notifications);
+          if (res.ok) {
+            const json = await res.json();
+            if (json.success && json.data) {
+              if (json.data.business) setBusiness(json.data.business);
+              if (json.data.notifications) setNotifications(json.data.notifications);
+            }
           }
         } catch (error) {
           console.error("Failed to load settings:", error);
@@ -192,8 +194,7 @@ export default function SettingsPage() {
               { id: "profile", label: "Admin Profile", icon: User },
               { id: "business", label: "Business Details", icon: Briefcase },
               { id: "notifications", label: "Alerts & Webhooks", icon: Bell },
-              // ONLY render the Access Control tab if the logged-in user is an Admin
-              ...(currentUserRole === "Admin/Owner" ? [{ id: "team", label: "Access Control", icon: Users }] : []),
+              { id: "team", label: "Access Control", icon: Users },
             ].map((tab) => (
               <button
                 key={tab.id}
@@ -442,14 +443,13 @@ export default function SettingsPage() {
                 )}
 
                 {/* === TEAM & ACCESS (Embedded Component) === */}
-                {activeTab === "team" && currentUserRole === "Admin/Owner/manager" && (
+                {activeTab === "team" && (
                   <motion.div 
                     key="team"
                     initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.2 }}
-                    className="w-full -mx-4 -my-4"
+                    className="w-full h-full -mx-4 -my-4"
                   >
-                    {/* Directly renders the UsersPage inside the Settings panel without routing */}
-                    <UsersPage />
+                    <Team />
                   </motion.div>
                 )}
 

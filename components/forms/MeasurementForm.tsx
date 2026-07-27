@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Ruler, Save, AlertCircle } from "lucide-react";
+import { Ruler, Save } from "lucide-react";
 
 export type Measurements = {
   id?: string;
@@ -14,8 +14,11 @@ export type Measurements = {
   shoulder: string; 
   sleeveLength: string;
   shirtLength: string; 
-  trouserLength: string; 
+  trouserOutseam: string; 
+  trouserInseam: string;
   thigh: string;
+  bicep: string;
+  wrist: string;
 };
 
 interface MeasurementFormProps {
@@ -27,10 +30,13 @@ interface MeasurementFormProps {
 export default function MeasurementForm({ initialData, onSubmit, onCancel }: MeasurementFormProps) {
   const isEditing = !!initialData;
   const [data, setData] = useState<Measurements>(
-    initialData || { customerId: "", neck: "", chest: "", waist: "", hip: "", shoulder: "", sleeveLength: "", shirtLength: "", trouserLength: "", thigh: "" }
+    initialData || { 
+      customerId: "", neck: "", chest: "", waist: "", hip: "", 
+      shoulder: "", sleeveLength: "", shirtLength: "", trouserOutseam: "", 
+      trouserInseam: "", thigh: "", bicep: "", wrist: "" 
+    }
   );
 
-  // Tracks which input is currently focused for the anatomy guide
   const [focusedMetric, setFocusedMetric] = useState<string | null>(null);
 
   const metrics = [
@@ -40,15 +46,18 @@ export default function MeasurementForm({ initialData, onSubmit, onCancel }: Mea
     { key: "hip", label: "Hip / Seat" }, 
     { key: "shoulder", label: "Shoulder Width" }, 
     { key: "sleeveLength", label: "Sleeve Length" },
+    { key: "bicep", label: "Bicep Circumference" },
+    { key: "wrist", label: "Wrist / Cuff" },
     { key: "shirtLength", label: "Shirt / Top Length" }, 
-    { key: "trouserLength", label: "Trouser Outseam" }, 
+    { key: "trouserOutseam", label: "Trouser Outseam" }, 
+    { key: "trouserInseam", label: "Trouser Inseam" }, 
     { key: "thigh", label: "Thigh Circumference" }
   ];
 
   return (
     <motion.form 
       initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}
-      className="bg-neutral-900/80 backdrop-blur-2xl border border-white/10 rounded-3xl p-6 md:p-8 w-full max-w-4xl mx-auto shadow-2xl flex flex-col md:flex-row gap-8 max-h-[90vh] overflow-y-auto no-scrollbar"
+      className="bg-neutral-900/80 backdrop-blur-2xl border border-white/10 rounded-3xl p-6 md:p-8 w-full max-w-5xl mx-auto shadow-2xl flex flex-col md:flex-row gap-8 max-h-[90vh] overflow-y-auto no-scrollbar"
     >
       {/* Left Column: Form Inputs */}
       <div className="flex-1">
@@ -57,12 +66,12 @@ export default function MeasurementForm({ initialData, onSubmit, onCancel }: Mea
             <Ruler size={24} />
           </div>
           <div>
-            <h2 className="text-2xl font-black text-white tracking-tight">{isEditing ? "Update Metrics" : "Record Anatomy Metrics"}</h2>
-            <p className="text-xs text-neutral-400 mt-1">Select a field to view the precise anatomical measurement zone.</p>
+            <h2 className="text-2xl font-black text-white tracking-tight">{isEditing ? "Update Metrics" : "Universal Anatomy Metrics"}</h2>
+            <p className="text-xs text-neutral-400 mt-1">Complete structural measurements for precision tailoring.</p>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {metrics.map((m) => (
             <div key={m.key} className="space-y-1.5">
               <label className="text-[10px] font-bold text-neutral-400 uppercase tracking-wider">{m.label}</label>
@@ -89,93 +98,65 @@ export default function MeasurementForm({ initialData, onSubmit, onCancel }: Mea
       </div>
 
       {/* Right Column: Visual Anatomy Guide (SVG) */}
-      <div className="hidden md:flex flex-col items-center justify-center w-64 shrink-0 bg-neutral-950/50 rounded-2xl border border-white/5 p-4 relative">
+      <div className="hidden md:flex flex-col items-center justify-center w-72 shrink-0 bg-neutral-950/50 rounded-2xl border border-white/5 p-4 relative">
         <span className="absolute top-4 left-4 text-[10px] font-mono text-neutral-500 uppercase tracking-widest">Blueprint</span>
         
         <svg viewBox="0 0 200 400" className="w-full h-auto max-h-[350px] opacity-80 mt-4">
           <defs>
-            {/* Soft glow filter for active areas */}
             <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
               <feGaussianBlur stdDeviation="4" result="blur" />
               <feComposite in="SourceGraphic" in2="blur" operator="over" />
             </filter>
           </defs>
 
-          {/* Base Mannequin Wireframe */}
           <g stroke="#3f3f46" strokeWidth="2" fill="none" strokeLinecap="round">
-            {/* Head */}
             <circle cx="100" cy="40" r="20" />
             
-            {/* Neck */ isActive(focusedMetric, 'neck') 
-              ? <rect x="90" y="60" width="20" height="15" fill="#f59e0b" filter="url(#glow)" stroke="none" />
-              : <rect x="90" y="60" width="20" height="15" />
-            }
+            {isActive(focusedMetric, 'neck') ? <rect x="90" y="60" width="20" height="15" fill="#f59e0b" filter="url(#glow)" stroke="none" /> : <rect x="90" y="60" width="20" height="15" />}
+            {isActive(focusedMetric, 'shoulder') ? <line x1="50" y1="75" x2="150" y2="75" stroke="#f59e0b" strokeWidth="6" filter="url(#glow)" /> : <line x1="50" y1="75" x2="150" y2="75" />}
+            {isActive(focusedMetric, 'chest') ? <ellipse cx="100" cy="110" rx="45" ry="15" stroke="#f59e0b" strokeWidth="4" fill="#f59e0b" fillOpacity="0.2" filter="url(#glow)" /> : <ellipse cx="100" cy="110" rx="45" ry="15" strokeDasharray="4 4" />}
+            {isActive(focusedMetric, 'waist') ? <ellipse cx="100" cy="160" rx="35" ry="12" stroke="#f59e0b" strokeWidth="4" fill="#f59e0b" fillOpacity="0.2" filter="url(#glow)" /> : <ellipse cx="100" cy="160" rx="35" ry="12" strokeDasharray="4 4" />}
+            {isActive(focusedMetric, 'hip') ? <ellipse cx="100" cy="210" rx="48" ry="18" stroke="#f59e0b" strokeWidth="4" fill="#f59e0b" fillOpacity="0.2" filter="url(#glow)" /> : <ellipse cx="100" cy="210" rx="48" ry="18" strokeDasharray="4 4" />}
+            {isActive(focusedMetric, 'shirtLength') ? <line x1="100" y1="75" x2="100" y2="210" stroke="#f59e0b" strokeWidth="4" filter="url(#glow)" /> : <line x1="100" y1="75" x2="100" y2="210" strokeDasharray="2 4" />}
 
-            {/* Shoulders */ isActive(focusedMetric, 'shoulder')
-              ? <line x1="50" y1="75" x2="150" y2="75" stroke="#f59e0b" strokeWidth="6" filter="url(#glow)" />
-              : <line x1="50" y1="75" x2="150" y2="75" />
-            }
+            {isActive(focusedMetric, 'sleeveLength') ? (
+              <><line x1="50" y1="75" x2="30" y2="190" stroke="#f59e0b" strokeWidth="4" filter="url(#glow)" /><line x1="150" y1="75" x2="170" y2="190" stroke="#f59e0b" strokeWidth="4" filter="url(#glow)" /></>
+            ) : (
+              <><line x1="50" y1="75" x2="30" y2="190" /><line x1="150" y1="75" x2="170" y2="190" /></>
+            )}
 
-            {/* Chest */ isActive(focusedMetric, 'chest')
-              ? <ellipse cx="100" cy="110" rx="45" ry="15" stroke="#f59e0b" strokeWidth="4" fill="#f59e0b" fillOpacity="0.2" filter="url(#glow)" />
-              : <ellipse cx="100" cy="110" rx="45" ry="15" strokeDasharray="4 4" />
-            }
+            {isActive(focusedMetric, 'bicep') ? (
+              <><ellipse cx="40" cy="130" rx="12" ry="6" stroke="#f59e0b" strokeWidth="3" fill="#f59e0b" fillOpacity="0.2" transform="rotate(15 40 130)" filter="url(#glow)" /><ellipse cx="160" cy="130" rx="12" ry="6" stroke="#f59e0b" strokeWidth="3" fill="#f59e0b" fillOpacity="0.2" transform="rotate(-15 160 130)" filter="url(#glow)" /></>
+            ) : (
+              <><ellipse cx="40" cy="130" rx="12" ry="6" strokeDasharray="2 2" transform="rotate(15 40 130)" /><ellipse cx="160" cy="130" rx="12" ry="6" strokeDasharray="2 2" transform="rotate(-15 160 130)" /></>
+            )}
 
-            {/* Waist */ isActive(focusedMetric, 'waist')
-              ? <ellipse cx="100" cy="160" rx="35" ry="12" stroke="#f59e0b" strokeWidth="4" fill="#f59e0b" fillOpacity="0.2" filter="url(#glow)" />
-              : <ellipse cx="100" cy="160" rx="35" ry="12" strokeDasharray="4 4" />
-            }
+            {isActive(focusedMetric, 'wrist') ? (
+              <><ellipse cx="30" cy="190" rx="8" ry="4" stroke="#f59e0b" strokeWidth="3" fill="#f59e0b" fillOpacity="0.2" transform="rotate(15 30 190)" filter="url(#glow)" /><ellipse cx="170" cy="190" rx="8" ry="4" stroke="#f59e0b" strokeWidth="3" fill="#f59e0b" fillOpacity="0.2" transform="rotate(-15 170 190)" filter="url(#glow)" /></>
+            ) : (
+              <><ellipse cx="30" cy="190" rx="8" ry="4" strokeDasharray="2 2" transform="rotate(15 30 190)" /><ellipse cx="170" cy="190" rx="8" ry="4" strokeDasharray="2 2" transform="rotate(-15 170 190)" /></>
+            )}
 
-            {/* Hip */ isActive(focusedMetric, 'hip')
-              ? <ellipse cx="100" cy="210" rx="48" ry="18" stroke="#f59e0b" strokeWidth="4" fill="#f59e0b" fillOpacity="0.2" filter="url(#glow)" />
-              : <ellipse cx="100" cy="210" rx="48" ry="18" strokeDasharray="4 4" />
-            }
-
-            {/* Arms / Sleeve Length */ isActive(focusedMetric, 'sleeveLength')
-              ? <>
-                  <line x1="50" y1="75" x2="30" y2="190" stroke="#f59e0b" strokeWidth="4" filter="url(#glow)" />
-                  <line x1="150" y1="75" x2="170" y2="190" stroke="#f59e0b" strokeWidth="4" filter="url(#glow)" />
-                </>
-              : <>
-                  <line x1="50" y1="75" x2="30" y2="190" />
-                  <line x1="150" y1="75" x2="170" y2="190" />
-                </>
-            }
-
-            {/* Shirt Length */ isActive(focusedMetric, 'shirtLength')
-              ? <line x1="100" y1="75" x2="100" y2="210" stroke="#f59e0b" strokeWidth="4" filter="url(#glow)" />
-              : <line x1="100" y1="75" x2="100" y2="210" strokeDasharray="2 4" />
-            }
-
-            {/* Legs Base */}
             <path d="M 100 228 L 100 240 M 70 220 L 70 380 M 130 220 L 130 380" />
+            
+            {isActive(focusedMetric, 'trouserOutseam') && <line x1="60" y1="210" x2="60" y2="380" stroke="#f59e0b" strokeWidth="4" filter="url(#glow)" />}
+            {isActive(focusedMetric, 'trouserInseam') && <line x1="90" y1="230" x2="90" y2="370" stroke="#f59e0b" strokeWidth="4" filter="url(#glow)" />}
 
-            {/* Trouser Length */ isActive(focusedMetric, 'trouserLength')
-              ? <line x1="60" y1="210" x2="60" y2="380" stroke="#f59e0b" strokeWidth="4" filter="url(#glow)" />
-              : null
-            }
-
-            {/* Thigh */ isActive(focusedMetric, 'thigh')
-              ? <>
-                  <ellipse cx="70" cy="260" rx="20" ry="8" stroke="#f59e0b" strokeWidth="3" fill="#f59e0b" fillOpacity="0.2" filter="url(#glow)" />
-                  <ellipse cx="130" cy="260" rx="20" ry="8" stroke="#f59e0b" strokeWidth="3" fill="#f59e0b" fillOpacity="0.2" filter="url(#glow)" />
-                </>
-              : <>
-                  <ellipse cx="70" cy="260" rx="20" ry="8" strokeDasharray="2 4" />
-                  <ellipse cx="130" cy="260" rx="20" ry="8" strokeDasharray="2 4" />
-                </>
-            }
+            {isActive(focusedMetric, 'thigh') ? (
+              <><ellipse cx="70" cy="260" rx="20" ry="8" stroke="#f59e0b" strokeWidth="3" fill="#f59e0b" fillOpacity="0.2" filter="url(#glow)" /><ellipse cx="130" cy="260" rx="20" ry="8" stroke="#f59e0b" strokeWidth="3" fill="#f59e0b" fillOpacity="0.2" filter="url(#glow)" /></>
+            ) : (
+              <><ellipse cx="70" cy="260" rx="20" ry="8" strokeDasharray="2 4" /><ellipse cx="130" cy="260" rx="20" ry="8" strokeDasharray="2 4" /></>
+            )}
           </g>
         </svg>
 
-        {/* Dynamic Label */}
         <div className="h-6 mt-4">
           <AnimatePresence mode="wait">
             {focusedMetric && (
               <motion.div 
                 key={focusedMetric}
                 initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -5 }}
-                className="text-xs font-bold text-amber-400 bg-amber-500/10 px-3 py-1 rounded-full border border-amber-500/20"
+                className="text-xs font-bold text-amber-400 bg-amber-500/10 px-3 py-1 rounded-full border border-amber-500/20 text-center"
               >
                 {metrics.find(m => m.key === focusedMetric)?.label}
               </motion.div>
@@ -187,7 +168,6 @@ export default function MeasurementForm({ initialData, onSubmit, onCancel }: Mea
   );
 }
 
-// Helper function for cleaner SVG condition checks
 function isActive(focused: string | null, key: string) {
   return focused === key;
 }

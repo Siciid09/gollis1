@@ -171,38 +171,7 @@ export default function CustomerForm({ initialData, onSubmit, onCancel }: Custom
           </div>
         </div>
 
-        {/* Measurement Transition Toggle */}
-        <div 
-          className={`md:col-span-2 mt-2 p-4 rounded-2xl border-2 transition-all cursor-pointer flex items-center justify-between ${
-            recordMeasurementsNow 
-              ? "border-indigo-500/40 bg-indigo-500/10 shadow-[4px_4px_0px_0px_rgba(99,102,241,0.2)]" 
-              : "border-neutral-800 bg-neutral-950/50 hover:border-neutral-700"
-          }`}
-          onClick={() => setRecordMeasurementsNow(!recordMeasurementsNow)}
-        >
-          <div className="flex items-center gap-4">
-            <div className={`p-2.5 rounded-xl transition-colors ${recordMeasurementsNow ? "bg-indigo-500 text-white" : "bg-neutral-900 text-neutral-500 border border-neutral-800"}`}>
-              <Ruler size={20} />
-            </div>
-            <div>
-              <h4 className={`font-bold ${recordMeasurementsNow ? "text-white" : "text-neutral-400"}`}>
-                Record Measurements Now
-              </h4>
-              <p className="text-[11px] text-neutral-500 mt-0.5">
-                Automatically transition to the anatomical metrics workflow after saving.
-              </p>
-            </div>
-          </div>
-          
-          <div className={`w-12 h-6 rounded-full p-1 transition-colors duration-300 ease-in-out flex shrink-0 ${recordMeasurementsNow ? 'bg-indigo-500' : 'bg-neutral-800'}`}>
-            <motion.div 
-              layout 
-              className="w-4 h-4 rounded-full bg-white shadow-sm" 
-              animate={{ x: recordMeasurementsNow ? 24 : 0 }}
-              transition={{ type: "spring", stiffness: 500, damping: 30 }}
-            />
-          </div>
-        </div>
+        
       </div>
 
       <div className="mt-8 flex items-center justify-end gap-4 border-t border-white/5 pt-6">
@@ -220,7 +189,7 @@ export default function CustomerForm({ initialData, onSubmit, onCancel }: Custom
           className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-2.5 rounded-xl text-xs font-bold transition-all shadow-lg shadow-indigo-600/20 active:scale-95 disabled:opacity-50 disabled:active:scale-100"
         >
           {isSubmitting ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
-          {isSubmitting ? "Saving Data..." : isEditing ? "Commit Updates" : (recordMeasurementsNow ? "Save & Measure" : "Save Record")}
+          {isSubmitting ? "Saving Data..." : isEditing ? "Commit Updates" : "Save Record"}
         </button>
       </div>
     </motion.form>
